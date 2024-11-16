@@ -11,7 +11,7 @@
 # USAGE
 #   t_proc_info.sh <PID>
 #
-#   Examle:
+#   Example:
 #       t_proc_info.sh 123
 #
 #
