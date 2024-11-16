@@ -78,10 +78,10 @@ function print_top_cmd_info() {
     # echo "shr_size_raw: $shr_size_raw"
 
     # parse unit of measurement
-    # t_convert_data_size_unit _ m "$virt_size"
-    local virt_size="$(t_convert_data_size_unit k _ "$virt_size_raw")"
-    local rss_size="$(t_convert_data_size_unit k _ "$rss_size_raw")"
-    local shr_size="$(t_convert_data_size_unit k _ "$shr_size_raw")"
+    # t_convert_data_size_bi_unit _ m "$virt_size"
+    local virt_size="$(t_convert_data_size_bi_unit k _ "$virt_size_raw")"
+    local rss_size="$(t_convert_data_size_bi_unit k _ "$rss_size_raw")"
+    local shr_size="$(t_convert_data_size_bi_unit k _ "$shr_size_raw")"
 
     echo "cpu_util_percent: $cpu_util_percent"
     echo "virt_size: $virt_size"
@@ -90,7 +90,7 @@ function print_top_cmd_info() {
 }
 
 
-function print_resource_usage() {
+function print_resources_usage() {
     local pid="$1"
     print_top_cmd_info "$pid"
 }
@@ -99,7 +99,7 @@ function print_resource_usage() {
 function print_fd_info() {
     local pid="$1"
     local lsof_out="$(lsof -p "$pid")"
-    #echo "$lsof_out"
+    # echo "$lsof_out"
     declare -A raw_ds
 
     local num_fds=-1
@@ -231,7 +231,7 @@ echo "BASIC INFO:"
 print_basic_info "$input_pid" | t_echo_with_prefix "  "
 
 echo; echo "RESOURCES USAGE:"
-print_resource_usage "$input_pid" | t_echo_with_prefix "  "
+print_resources_usage "$input_pid" | t_echo_with_prefix "  "
 
 echo; echo "FILE DESCRIPTORS:"
 print_fd_info "$input_pid" | t_echo_with_prefix "  "

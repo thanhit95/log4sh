@@ -25,6 +25,9 @@
 ###################################################
 
 
+_T_UTIL_LIB_CUR_NAME="$(basename "$0")"
+
+
 declare -A T_CHAR_2_VAL_DATA_SIZE_UNIT_MP=(
     ["b"]=0
     ["k"]=1
@@ -42,7 +45,23 @@ T_DATA_SIZE_BI_UNIT_POWER=(1 1024 1048576 1073741824 1099511627776 1125899906842
 
 
 ###################################################
-#                     FUNCTIONS
+#                 PRIVATE FUNCTIONS
+###################################################
+
+
+function _local_echoerr() {
+    if [[ -n $BASH_VERSION ]]; then
+        printf "%s\n" "$_T_UTIL_LIB_CUR_NAME:${FUNCNAME[1]}:$LINENO $@" 1>&2
+    elif [[ -n "$ZSH_VERSION" ]]; then
+        printf "%s\n" "$_T_UTIL_LIB_CUR_NAME:${funcstack[@]:1:1}:$LINENO $@" 1>&2
+    else
+        echo "$_T_UTIL_LIB_CUR_NAME:$LINENO $@" 1>&2
+    fi
+}
+
+
+###################################################
+#                   PUBLIC API
 ###################################################
 
 
@@ -54,10 +73,27 @@ T_DATA_SIZE_BI_UNIT_POWER=(1 1024 1048576 1073741824 1099511627776 1125899906842
 # If the input value is less than the minimum, the minimum is returned.
 # If the input value is greater than the maximum, the maximum is returned.
 # Otherwise, the input value is returned unchanged.
+#
+# Arguments:
+#   min         The minimum value to clamp
+#   max         The maximum value to clamp
+#   value       The value to clamp
+#
 function t_clamp() {
     local min="$1"
     local max="$2"
     local value="$3"
+
+    if [[ -z "$min" ]]; then
+        _local_echoerr "Missing argument: min" && exit 1
+    fi
+    if [[ -z "$max" ]]; then
+        _local_echoerr "Missing argument: max" && exit 1
+    fi
+    if [[ -z "$value" ]]; then
+        _local_echoerr "Missing argument: value" && exit 1
+    fi
+
     if [[ "$value" -lt "$min" ]]; then
         echo "$min"
     elif [[ "$value" -gt "$max" ]]; then
@@ -74,9 +110,19 @@ function t_clamp() {
 # The content string is read line-by-line and each line is printed with the
 # prefix prepended. If the content string is empty, the function reads from
 # standard input instead.
+#
+# Arguments:
+#   prefix      The prefix string to prepend to each line
+#   content     The content string to print
+#
 function t_echo_with_prefix() {
     local prefix="$1"
     local content="$2"
+
+    if [[ -z "$prefix" ]]; then
+        _local_echoerr "Missing argument: prefix" && exit 1
+    fi
+
     if [[ ! -z "$content" ]]; then
         while IFS= read -r line || [[ -n $line ]]; do
             echo "$prefix$line"
@@ -98,32 +144,39 @@ function t_echo_with_prefix() {
 # calculation.
 #
 # Arguments:
-#   src_unit - Source unit character (e.g., "b", "k", "m", "g", "t", "p")
-#   dst_unit - Destination unit character or "_" for auto-detect
-#   num      - The positive number to convert, with optional trailing unit
+#   src_unit    Source unit character ("b", "k", "m", "g", "t", "p" or "_")
+#                   b is bytes
+#                   k is kibibytes
+#                   m is mebibytes
+#                   g is gibibytes
+#                   t is tebibytes
+#                   p is pebibytes
+#                   _ is auto-detect
+#   dst_unit    Destination unit character, values are the same as src_unit
+#   num         The positive number to convert, with optional trailing unit
 #
 # Returns:
 #   Converted data size with destination unit
 #       If dst_unit is "_":
-#           - The auto-detected unit will be included in the output
-#           - The number will be calculated to display appropriately
+#           - The auto-detected unit will be included in the output.
+#           - The number will be calculated to display appropriately.
 #
 # Example:
 #                                                   Output
-#   t_convert_data_size_unit m k "10"               10240
-#   t_convert_data_size_unit _ k "10m"              10240
-#   t_convert_data_size_unit k g "1000000"          .953
-#   t_convert_data_size_unit _ g "1000000k"         .953
-#   t_convert_data_size_unit m _ "1025.67"          1025.67m
-#   t_convert_data_size_unit b _ "107378182"        102.403m
-#   t_convert_data_size_unit g _ "0.0000123"        13207b
-#   t_convert_data_size_unit _ _ "0.0000123g"       13207b
-#   t_convert_data_size_unit _ _ "0.000123g"        128k
-#   t_convert_data_size_unit _ _ "0.0000000123g"    13b
-#   t_convert_data_size_unit k _ "389164k"          380.042m
-#   t_convert_data_size_unit k _ "389164m"          380.042g
+#   t_convert_data_size_bi_unit m k "10"               10240
+#   t_convert_data_size_bi_unit _ k "10m"              10240
+#   t_convert_data_size_bi_unit k g "1000000"          .953
+#   t_convert_data_size_bi_unit _ g "1000000k"         .953
+#   t_convert_data_size_bi_unit m _ "1025.67"          1025.67m
+#   t_convert_data_size_bi_unit b _ "107378182"        102.403m
+#   t_convert_data_size_bi_unit g _ "0.0000123"        13207b
+#   t_convert_data_size_bi_unit _ _ "0.0000123g"       13207b
+#   t_convert_data_size_bi_unit _ _ "0.000123g"        128k
+#   t_convert_data_size_bi_unit _ _ "0.0000000123g"    13b
+#   t_convert_data_size_bi_unit k _ "389164k"          380.042m
+#   t_convert_data_size_bi_unit k _ "389164m"          380.042g
 #
-function t_convert_data_size_unit() {
+function t_convert_data_size_bi_unit() {
     local src_unit="$1"
     local dst_unit="$2"
     # num in base 2 (introduced by the International Electrotechnical Commission)
@@ -133,6 +186,16 @@ function t_convert_data_size_unit() {
     # echo "input src_unit: $src_unit"
     # echo "input dst_unit: $dst_unit"
     # echo "input num: $num"
+
+    if [[ -z "$src_unit" ]]; then
+        _local_echoerr "Missing argument: src_unit" && exit 1
+    fi
+    if [[ -z "$dst_unit" ]]; then
+        _local_echoerr "Missing argument: dst_unit" && exit 1
+    fi
+    if [[ -z "$num" ]]; then
+        _local_echoerr "Missing argument: num" && exit 1
+    fi
 
     local num_final_char="${num:0-1}"
 
@@ -185,7 +248,6 @@ function t_convert_data_size_unit() {
             # echo "num_3octets_to_divide is $num_3octets_to_divide"
             dst_unit_enum="$(( $src_unit_enum + $num_3octets_to_divide ))"
         else
-            #local num_3octets_to_multiply="$(bc -l <<< "x=10 * (l($num) / l(2) / 10 + 0.5 + 1); scale=0; x/10")"
             local num_3octets_to_multiply="$(bc -l <<< "x=10 * (-l($num) / l(2) / 10 + 0.5 + 1); scale=0; x/10")"
             # echo "num_3octets_to_multiply is $num_3octets_to_multiply"
             dst_unit_enum="$(( $src_unit_enum - $num_3octets_to_multiply ))"
@@ -223,16 +285,21 @@ function t_convert_data_size_unit() {
 ###################################################
 
 
-# t_convert_data_size_unit _ _ "63756"
-# t_convert_data_size_unit _ k "10m"
-# t_convert_data_size_unit _ k "10m" | t_echo_with_prefix "    Convert 10 mebibytes to kibibytes: "
-# t_convert_data_size_unit _ g "1000000k"
-# t_convert_data_size_unit _ _ "1025.67m"
-# t_convert_data_size_unit _ _ "0.0000123g"
-# t_convert_data_size_unit _ _ "0.000123g"
-# t_convert_data_size_unit _ _ "0.0000000123g"
-# t_convert_data_size_unit b _ "107378182"
+# t_convert_data_size_bi_unit _ _ "63756"
+# t_convert_data_size_bi_unit _ k "10m"
+# t_convert_data_size_bi_unit _ k "10m" | t_echo_with_prefix "    Convert 10 mebibytes to kibibytes: "
+# t_convert_data_size_bi_unit _ g "1000000k"
+# t_convert_data_size_bi_unit _ _ "1025.67m"
+# t_convert_data_size_bi_unit _ _ "0.0000123g"
+# t_convert_data_size_bi_unit _ _ "0.000123g"
+# t_convert_data_size_bi_unit _ _ "0.0000000123g"
+# t_convert_data_size_bi_unit b _ "107378182"
+# n="$(t_convert_data_size_bi_unit b _ "107378182")" && echo "n is $n"
 
-# t_convert_data_size_unit k _ "389164"
-# t_convert_data_size_unit k _ "389164k"
-# t_convert_data_size_unit k _ "389164m"
+# t_convert_data_size_bi_unit k _ "389164"
+# t_convert_data_size_bi_unit k _ "389164k"
+# t_convert_data_size_bi_unit k _ "389164m"
+
+# n="$(t_convert_data_size_bi_unit b _)" && echo "n is $n"
+
+# echo "Done testing"
