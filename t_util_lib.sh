@@ -41,6 +41,7 @@ declare -A T_CHAR_2_VAL_DATA_SIZE_UNIT_MP=(
 declare T_VAL_2_CHAR_DATA_SIZE_UNIT_MP=(b k m g t p)
 
 
+
 T_DATA_SIZE_BI_UNIT_POWER=(1 1024 1048576 1073741824 1099511627776 1125899906842624)
 
 
@@ -84,15 +85,9 @@ function t_clamp() {
     local max="$2"
     local value="$3"
 
-    if [[ -z "$min" ]]; then
-        _local_echoerr "Missing argument: min" && exit 1
-    fi
-    if [[ -z "$max" ]]; then
-        _local_echoerr "Missing argument: max" && exit 1
-    fi
-    if [[ -z "$value" ]]; then
-        _local_echoerr "Missing argument: value" && exit 1
-    fi
+    [[ -z "$min" ]] && _local_echoerr "Missing argument: min" && exit 1
+    [[ -z "$max" ]] && _local_echoerr "Missing argument: max" && exit 1
+    [[ -z "$value" ]] && _local_echoerr "Missing argument: value" && exit 1
 
     if [[ "$value" -lt "$min" ]]; then
         echo "$min"
@@ -119,9 +114,7 @@ function t_echo_with_prefix() {
     local prefix="$1"
     local content="$2"
 
-    if [[ -z "$prefix" ]]; then
-        _local_echoerr "Missing argument: prefix" && exit 1
-    fi
+    [[ -z "$prefix" ]] && _local_echoerr "Missing argument: prefix" && exit 1
 
     if [[ ! -z "$content" ]]; then
         while IFS= read -r line || [[ -n $line ]]; do
@@ -187,15 +180,9 @@ function t_convert_data_size_bi_unit() {
     # echo "input dst_unit: $dst_unit"
     # echo "input num: $num"
 
-    if [[ -z "$src_unit" ]]; then
-        _local_echoerr "Missing argument: src_unit" && exit 1
-    fi
-    if [[ -z "$dst_unit" ]]; then
-        _local_echoerr "Missing argument: dst_unit" && exit 1
-    fi
-    if [[ -z "$num" ]]; then
-        _local_echoerr "Missing argument: num" && exit 1
-    fi
+    [[ -z "$src_unit" ]] && _local_echoerr "Missing argument: src_unit" && exit 1
+    [[ -z "$dst_unit" ]] && _local_echoerr "Missing argument: dst_unit" && exit 1
+    [[ -z "$num" ]] && _local_echoerr "Missing argument: num" && exit 1
 
     local num_final_char="${num:0-1}"
 
@@ -253,7 +240,7 @@ function t_convert_data_size_bi_unit() {
             dst_unit_enum="$(( $src_unit_enum - $num_3octets_to_multiply ))"
         fi
         dst_unit_enum="$(t_clamp 0 5 "$dst_unit_enum")"
-        dst_unit="${T_VAL_2_CHAR_DATA_SIZE_UNIT_MP[$dst_unit_enum]}"
+        dst_unit="${T_VAL_2_CHAR_DATA_SIZE_UNIT_MP[@]:$dst_unit_enum:1}"
         postfix_unit="$dst_unit"
     else
         dst_unit_enum="${T_CHAR_2_VAL_DATA_SIZE_UNIT_MP[$dst_unit]}"
@@ -273,9 +260,9 @@ function t_convert_data_size_bi_unit() {
     fi
 
     if [ "$dst_src_diff" -lt 0 ]; then
-        echo "$(bc <<< "scale=0; $num * ${T_DATA_SIZE_BI_UNIT_POWER[$src_dst_diff]} / 1")$postfix_unit"
+        echo "$(bc <<< "scale=0; $num * ${T_DATA_SIZE_BI_UNIT_POWER[@]:$src_dst_diff:1} / 1")$postfix_unit"
     else
-        echo "$(bc <<< "scale=3; $num / ${T_DATA_SIZE_BI_UNIT_POWER[$dst_src_diff]}")$postfix_unit"
+        echo "$(bc <<< "scale=3; $num / ${T_DATA_SIZE_BI_UNIT_POWER[@]:$dst_src_diff:1}")$postfix_unit"
     fi
 }
 
