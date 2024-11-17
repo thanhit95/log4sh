@@ -5,6 +5,7 @@
 #
 # DESCRIPTION
 #   This script provides a set of utility functions.
+#   Please view the section "Public API" for details.
 #
 #
 # USAGE
@@ -166,7 +167,7 @@ function t_echo_with_prefix() {
 #           - The number will be calculated to display appropriately.
 #
 # Example:
-#                                                   Output
+#                                                      Output
 #   t_convert_data_size_bi_unit m k "10"               10240
 #   t_convert_data_size_bi_unit _ k "10m"              10240
 #   t_convert_data_size_bi_unit k g "1000000"          .953
@@ -183,7 +184,6 @@ function t_echo_with_prefix() {
 function t_convert_data_size_bi_unit() {
     local src_unit="$1"
     local dst_unit="$2"
-    # num in base 2 (introduced by the International Electrotechnical Commission)
     local num="$3"
 
     # debug
@@ -220,25 +220,26 @@ function t_convert_data_size_bi_unit() {
     if [[ "$dst_unit" == "_" ]]; then
         # auto detect
         #
-        # algorithm:
+        # My algorithm:
         #   if num >= 1
         #       power2 = log2(num)
-        #       num_3octets_to_divide = groundInteger(power2 / 10) - 1
+        #       num_3octets_to_divide = roundInt(power2 / 10) - 1
         #   else
         #       power2 = -log2(num)
-        #       num_3octets_to_multiply = groundInteger(power2 / 10) + 1
-        # example:
+        #       num_3octets_to_multiply = roundInt(power2 / 10) + 1
+        #
+        # Example:
         #   case num >= 1
         #       num = 107375182 bytes
         #       power2 = log2(num) = 26.68
-        #       num_3octets_to_divide = groundInteger(power2 / 10) - 1 = groundInteger(26.68 / 10) - 1 = groundInteger(2.68) - 1 = 3 - 1 = 2
+        #       num_3octets_to_divide = roundInt(power2 / 10) - 1 = roundInt(26.68 / 10) - 1 = roundInt(2.68) - 1 = 3 - 1 = 2
         #       So we need to divide num by 2^(10 * num_3octets_to_divide) = 2^(10 * 2) = 2^20
         #       ==> num / (2^20) = 102.4 mebibytes
         #   case 0 <= num < 1
         #       num = 0.0000123 gibibytes
         #       power2 = -log2(num) = 16.31
-        #       num_3octets_to_multiply = groundInteger(power2 / 10) + 1 = groundInteger(16.31 / 10) + 1 = groundInteger(1.631) + 1 = 2 + 1 = 3
-        #       So we need to mutiply num by 2^(10 * num_3octets_to_multiply) = 2^(10 * 3) = 2^30
+        #       num_3octets_to_multiply = roundInt(power2 / 10) + 1 = roundInt(16.31 / 10) + 1 = roundInt(1.631) + 1 = 2 + 1 = 3
+        #       So we need to mutiply num with 2^(10 * num_3octets_to_multiply) = 2^(10 * 3) = 2^30
         #       ==> num * (2^30) = 13207.024 bytes
         #
         if [[ "$(bc <<< "$num >= 1")" == "1" ]]; then

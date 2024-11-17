@@ -98,8 +98,8 @@ function print_resources_usage() {
 
 function print_fd_info() {
     local pid="$1"
-    local lsof_out="$(lsof -p "$pid")"
-    # echo "$lsof_out"
+    local cmd_out="$(lsof -p "$pid")"
+    # echo "$cmd_out"
     declare -A raw_ds
 
     local num_fds=-1
@@ -129,7 +129,7 @@ function print_fd_info() {
         raw_ds[$num_fds,3]="$(tr -s ' ' <<< "$line" | cut -d' ' -f 9-)" # name
 
         num_fds=$(( $num_fds + 1 ))
-    done <<< "$lsof_out"
+    done <<< "$cmd_out"
 
     # for ((i=0; i<$num_fds; ++i)); do
     #     echo "fd: ${raw_ds[$i,0]}, type: ${raw_ds[$i,1]}, inode: ${raw_ds[$i,2]}, path: ${raw_ds[$i,3]}"
