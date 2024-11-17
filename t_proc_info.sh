@@ -219,6 +219,7 @@ function print_fd_info() {
 
 
 input_pid="$1"
+# n="$(t_convert_data_size_bi_unit b _)" && echo "n is $n"
 
 
 if [[ ! -d "/proc/$input_pid" ]]; then
@@ -235,3 +236,4 @@ print_resources_usage "$input_pid" | t_echo_with_prefix "  "
 
 echo; echo "FILE DESCRIPTORS:"
 print_fd_info "$input_pid" | t_echo_with_prefix "  "
+

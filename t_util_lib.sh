@@ -13,7 +13,7 @@
 #
 #
 # DEPENDENCIES
-#   - Commands: bc
+#   - Commands: bc, basename
 #
 ###################################################
 
@@ -25,7 +25,12 @@
 ###################################################
 
 
-_T_UTIL_LIB_CUR_NAME="$(basename "$0")"
+_T_UTIL_LIB_CUR_NAME=
+if [[ -n $BASH_VERSION ]]; then
+    _T_UTIL_LIB_CUR_NAME="$(basename $BASH_SOURCE)"
+elif [[ -n "$ZSH_VERSION" ]]; then
+    _T_UTIL_LIB_CUR_NAME="$(basename "$0")"
+fi
 
 
 declare -A T_CHAR_2_VAL_DATA_SIZE_UNIT_MP=(
@@ -38,8 +43,7 @@ declare -A T_CHAR_2_VAL_DATA_SIZE_UNIT_MP=(
 )
 
 
-declare T_VAL_2_CHAR_DATA_SIZE_UNIT_MP=(b k m g t p)
-
+T_VAL_2_CHAR_DATA_SIZE_UNIT_MP=(b k m g t p)
 
 
 T_DATA_SIZE_BI_UNIT_POWER=(1 1024 1048576 1073741824 1099511627776 1125899906842624)
@@ -50,14 +54,21 @@ T_DATA_SIZE_BI_UNIT_POWER=(1 1024 1048576 1073741824 1099511627776 1125899906842
 ###################################################
 
 
-function _local_echoerr() {
+function _lo_printerr() {
+    local line_no
+    local func_name
+    local tmp
+
     if [[ -n $BASH_VERSION ]]; then
-        printf "%s\n" "$_T_UTIL_LIB_CUR_NAME:${FUNCNAME[1]}:$LINENO $@" 1>&2
+        IFS=' ' read line_no func_name tmp <<< "$(caller 0)"
     elif [[ -n "$ZSH_VERSION" ]]; then
-        printf "%s\n" "$_T_UTIL_LIB_CUR_NAME:${funcstack[@]:1:1}:$LINENO $@" 1>&2
+        func_name="${funcstack[2]}"
+        line_no="${funcfiletrace[1]#*:}"
     else
-        echo "$_T_UTIL_LIB_CUR_NAME:$LINENO $@" 1>&2
+        line_no=$LINENO
     fi
+
+    echo "$_T_UTIL_LIB_CUR_NAME:$func_name:$line_no $@" 1>&2
 }
 
 
@@ -85,9 +96,9 @@ function t_clamp() {
     local max="$2"
     local value="$3"
 
-    [[ -z "$min" ]] && _local_echoerr "Missing argument: min" && exit 1
-    [[ -z "$max" ]] && _local_echoerr "Missing argument: max" && exit 1
-    [[ -z "$value" ]] && _local_echoerr "Missing argument: value" && exit 1
+    [[ -z "$min" ]] && _lo_printerr "Missing argument: min" && exit 1
+    [[ -z "$max" ]] && _lo_printerr "Missing argument: max" && exit 1
+    [[ -z "$value" ]] && _lo_printerr "Missing argument: value" && exit 1
 
     if [[ "$value" -lt "$min" ]]; then
         echo "$min"
@@ -114,7 +125,7 @@ function t_echo_with_prefix() {
     local prefix="$1"
     local content="$2"
 
-    [[ -z "$prefix" ]] && _local_echoerr "Missing argument: prefix" && exit 1
+    [[ -z "$prefix" ]] && _lo_printerr "Missing argument: prefix" && exit 1
 
     if [[ ! -z "$content" ]]; then
         while IFS= read -r line || [[ -n $line ]]; do
@@ -180,9 +191,9 @@ function t_convert_data_size_bi_unit() {
     # echo "input dst_unit: $dst_unit"
     # echo "input num: $num"
 
-    [[ -z "$src_unit" ]] && _local_echoerr "Missing argument: src_unit" && exit 1
-    [[ -z "$dst_unit" ]] && _local_echoerr "Missing argument: dst_unit" && exit 1
-    [[ -z "$num" ]] && _local_echoerr "Missing argument: num" && exit 1
+    [[ -z "$src_unit" ]] && _lo_printerr "Missing argument: src_unit" && exit 1
+    [[ -z "$dst_unit" ]] && _lo_printerr "Missing argument: dst_unit" && exit 1
+    [[ -z "$num" ]] && _lo_printerr "Missing argument: num" && exit 1
 
     local num_final_char="${num:0-1}"
 
