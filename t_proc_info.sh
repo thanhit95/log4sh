@@ -31,17 +31,26 @@
 # set -x
 
 
+_T_PROC_INFO_THIS_FILE_PATH=
+if [[ -n "$BASH_VERSION" ]]; then
+    _T_PROC_INFO_THIS_FILE_PATH="$(readlink -f ${BASH_SOURCE[0]})"
+elif [[ -n "$ZSH_VERSION" ]]; then
+    _T_PROC_INFO_THIS_FILE_PATH="${0:a}"
+fi
+_T_PROC_INFO_THIS_BASE_DIR="${_T_PROC_INFO_THIS_FILE_PATH%/*}"
+_T_PROC_INFO_THIS_FILE_NAME="${_T_PROC_INFO_THIS_FILE_PATH##*/}"
+# echo "_T_PROC_INFO_THIS_FILE_PATH: $_T_PROC_INFO_THIS_FILE_PATH"
+# echo "_T_PROC_INFO_THIS_BASE_DIR: $_T_PROC_INFO_THIS_BASE_DIR"
+# echo "_T_PROC_INFO_THIS_FILE_NAME: $_T_PROC_INFO_THIS_FILE_NAME"
 
-THIS_SCRIPT_BASE_DIR=$(cd "$(dirname "$0")" && pwd)
-# echo "THIS_SCRIPT_BASE_DIR: $THIS_SCRIPT_BASE_DIR"
 
-
-. "$THIS_SCRIPT_BASE_DIR/t_util_lib.sh"
+. "$_T_PROC_INFO_THIS_BASE_DIR/t_util_lib.sh"
 
 
 ###################################################
 #                   FUNCTIONS
 ###################################################
+
 
 function print_basic_info() {
     local pid="$1"
@@ -67,12 +76,21 @@ function print_basic_info() {
 function print_top_cmd_info() {
     local pid="$1"
     local cmd_out_str="$(top -p "$pid" -b -n 2 -d 1 | tail -1)"
-    IFS=' ' read -a cmd_out <<< "$cmd_out_str"
-    # echo "${cmd_out[@]}"
-    local virt_size_raw="${cmd_out[4]}"
-    local rss_size_raw="${cmd_out[5]}"
-    local shr_size_raw="${cmd_out[6]}"
-    local cpu_util_percent="${cmd_out[8]}"
+
+    if [[ -n "$BASH_VERSION" ]]; then
+        IFS=' ' read -a cmd_out <<< "$cmd_out_str"
+    elif [[ -n "$ZSH_VERSION" ]]; then
+        IFS=' ' read -A cmd_out <<< "$cmd_out_str"
+    else
+        return
+    fi
+
+    # echo "cmd_out_str: $cmd_out_str"
+    # echo "cmd_out: ${cmd_out[@]}"
+    local virt_size_raw="${cmd_out[@]:4:1}"
+    local rss_size_raw="${cmd_out[@]:5:1}"
+    local shr_size_raw="${cmd_out[@]:6:1}"
+    local cpu_util_percent="${cmd_out[@]:8:1}"
     # echo "virt_size_raw: $virt_size_raw"
     # echo "rss_size_raw: $rss_size_raw"
     # echo "shr_size_raw: $shr_size_raw"
@@ -100,11 +118,19 @@ function print_fd_info() {
     local pid="$1"
     local cmd_out="$(lsof -p "$pid")"
     # echo "$cmd_out"
-    declare -A raw_ds
 
+    if [[ -n "$BASH_VERSION" ]]; then
+        :
+    elif [[ -n "$ZSH_VERSION" ]]; then
+        :
+    else
+        return
+    fi
+
+    declare -A raw_ds
     local num_fds=-1
 
-    while IFS= read -r line || [[ -n $line ]]; do
+    while IFS= read -r line || [[ -n "$line" ]]; do
         if [[ "$num_fds" -lt 0 ]]; then
             # ignore the first line
             num_fds=0
@@ -112,9 +138,17 @@ function print_fd_info() {
         fi
         # echo "line is $line"
 
-        IFS=' ' read -a fd_info <<< "$line"
+        if [[ -n "$BASH_VERSION" ]]; then
+            IFS=' ' read -a fd_info <<< "$line"
+        elif [[ -n "$ZSH_VERSION" ]]; then
+            IFS=' ' read -A fd_info <<< "$line"
+        else
+            : # impossible
+        fi
+        # echo "fd_info is ${fd_info[@]}"
 
-        if [[ "${fd_info[3]}" == "DEL" ]]; then
+
+        if [[ "${fd_info[@]:3:1}" == "DEL" ]]; then
             # skip
             num_fds=$(( $num_fds + 1 ))
             continue
@@ -123,9 +157,9 @@ function print_fd_info() {
         # fd_info[8]="$(tr -s ' ' <<< "$line" | cut -d' ' -f 9-)"
         # echo "fd: ${fd_info[3]}, type: ${fd_info[4]}, inode: ${fd_info[7]}, path: ${fd_info[8]}"
 
-        raw_ds[$num_fds,0]="${fd_info[3]}" # fd
-        raw_ds[$num_fds,1]="${fd_info[4]}" # type
-        raw_ds[$num_fds,2]="${fd_info[7]}" # inode
+        raw_ds[$num_fds,0]="${fd_info[@]:3:1}" # fd
+        raw_ds[$num_fds,1]="${fd_info[@]:4:1}" # type
+        raw_ds[$num_fds,2]="${fd_info[@]:7:1}" # inode
         raw_ds[$num_fds,3]="$(tr -s ' ' <<< "$line" | cut -d' ' -f 9-)" # name
 
         num_fds=$(( $num_fds + 1 ))
@@ -140,7 +174,10 @@ function print_fd_info() {
     local ds_memmap_idx=()
     local ds_regular_file_idx=()
 
-    for ((i=0; i<$num_fds; ++i)); do
+    i=0
+    [[ -n "$ZSH_VERSION" ]] && (( ++$num_fds )) && i=1
+
+    for ((; i<$num_fds; ++i)); do
         if [[ "${raw_ds[$i,2]}" == "TCP" ]]; then
             ds_network_tcp_idx+=($i)
         elif [[ "${raw_ds[$i,2]}" == "UDP" ]]; then
@@ -164,8 +201,10 @@ function print_fd_info() {
     # Sorting
     local n p q i j tmp
 
-    n="${#ds_network_tcp_idx[@]}"
-    for ((p=0; p<$n; ++p)); do
+    p=0; n="${#ds_network_tcp_idx[@]}"
+    [[ -n "$ZSH_VERSION" ]] && (( ++n )) && p=1
+
+    for ((; p<$n; ++p)); do
         i="${ds_network_tcp_idx[$p]}"
         for ((q=$p+1; q<$n; ++q)); do
             j="${ds_network_tcp_idx[$q]}"
@@ -180,8 +219,10 @@ function print_fd_info() {
         done
     done
 
-    n="${#ds_regular_file_idx[@]}"
-    for ((p=0; p<$n; ++p)); do
+    p=0; n="${#ds_regular_file_idx[@]}"
+    [[ -n "$ZSH_VERSION" ]] && (( ++n )) && p=1
+
+    for ((; p<$n; ++p)); do
         i="${ds_regular_file_idx[$p]}"
         for ((q=$p+1; q<$n; ++q)); do
             j="${ds_regular_file_idx[$q]}"
