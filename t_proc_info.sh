@@ -33,7 +33,7 @@
 
 _T_PROC_INFO_THIS_FILE_PATH=
 if [[ -n "$BASH_VERSION" ]]; then
-    _T_PROC_INFO_THIS_FILE_PATH="$(readlink -f ${BASH_SOURCE[0]})"
+    _T_PROC_INFO_THIS_FILE_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
 elif [[ -n "$ZSH_VERSION" ]]; then
     _T_PROC_INFO_THIS_FILE_PATH="${0:a}"
 fi
@@ -175,7 +175,7 @@ function print_fd_info() {
     local ds_regular_file_idx=()
 
     i=0
-    [[ -n "$ZSH_VERSION" ]] && (( ++$num_fds )) && i=1
+    [[ -n "$ZSH_VERSION" ]] && (( ++num_fds )) && i=1
 
     for ((; i<$num_fds; ++i)); do
         if [[ "${raw_ds[$i,2]}" == "TCP" ]]; then

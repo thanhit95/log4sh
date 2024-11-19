@@ -28,7 +28,7 @@
 
 _T_UTIL_LIB_THIS_FILE_PATH=
 if [[ -n "$BASH_VERSION" ]]; then
-    _T_UTIL_LIB_THIS_FILE_PATH="$(readlink -f ${BASH_SOURCE[0]})"
+    _T_UTIL_LIB_THIS_FILE_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
 elif [[ -n "$ZSH_VERSION" ]]; then
     _T_UTIL_LIB_THIS_FILE_PATH="${0:a}"
 fi
