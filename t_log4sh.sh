@@ -1,6 +1,44 @@
 #!/bin/bash
 
 
+################################################################################
+#
+# DESCRIPTION
+#   This library provides the logging functions with stack trace dumpling.
+#   Please view the section "API" for details.
+#
+#   Supported log levels: DEBUG, INFO, WARN, ERROR
+#
+#   There are two function types for each log level:
+#       t_log{level} and t_log{level}_st
+#   The postfix "_st" indicates that the function will dump the call stack.
+#
+#
+#
+# USAGE
+#   Importing the library:
+#       . t_log4sh.sh
+#       source t_log4sh.sh
+#
+#   Using the API:
+#       t_log{level} <msg>
+#       t_log{level}_st <msg>
+#
+#       Examples:
+#           t_loginfo "Hello, world!"
+#           t_loginfo_st "Hello, world!"
+#           t_logerr_st "Something happened unexpectedly"
+#
+#
+#
+# DEPENDENCIES
+#   - Commands: readlink
+#
+################################################################################
+
+
+
+
 _T_LOG4SH_THIS_FILE_PATH=
 if [[ -n "$BASH_VERSION" ]]; then
     _T_LOG4SH_THIS_FILE_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
@@ -14,9 +52,9 @@ _T_LOG4SH_THIS_FILE_NAME="${_T_LOG4SH_THIS_FILE_PATH##*/}"
 # echo "_T_LOG4SH_THIS_FILE_NAME: $_T_LOG4SH_THIS_FILE_NAME"
 
 
-###################################################
-#                PRIVATE CONSTANTS
-###################################################
+################################################################################
+#                              PRIVATE CONSTANTS
+################################################################################
 
 
 _T_LOG4SH_SPACE_ARR=(
@@ -33,9 +71,9 @@ _T_LOG4SH_SPACE_ARR=(
 _T_LOG4SH_SPACE_ARR_SIZE="${#_T_LOG4SH_SPACE_ARR[@]}"
 
 
-###################################################
-#                   FUNCTIONS
-###################################################
+################################################################################
+#                          INTERNAL API (may expose later)
+################################################################################
 
 
 # Prints the call stack of the current function invocation.
@@ -45,11 +83,11 @@ _T_LOG4SH_SPACE_ARR_SIZE="${#_T_LOG4SH_SPACE_ARR[@]}"
 #   prefix_sp_cnt   The number of spaces to prefix each line with. The default is 4.
 #
 # Examples:
-#   t_dump_trace
-#   t_dump_trace 1
-#   t_dump_trace 0 8
+#   _t_dump_trace
+#   _t_dump_trace 1
+#   _t_dump_trace 0 8
 #
-function t_dump_trace() {
+function _t_dump_trace() {
     local skip_cnt="$1"
     local prefix_sp_cnt="$2"
     local n tmp
@@ -92,9 +130,9 @@ function t_dump_trace() {
 #   msg             The log message.
 #
 # Examples:
-#   t_log_base true 0 "INFO" "Hello, world!"
+#   _t_log_base true 0 "INFO" "Hello, world!"
 #
-function t_log_base() {
+function _t_log_base() {
     local dump_trace="$1"
     local trace_skip_cnt="$2"
     local level="$3"
@@ -118,51 +156,51 @@ function t_log_base() {
     echo "$dt [$level] $file_name:$line_no: $func_name: $msg"
     # echo "$dt [$level] $func_name: $msg"
 
-    ((++trace_skip_cnt))
-    # t_dump_trace "$trace_skip_cnt"
+    (( ++trace_skip_cnt ))
+    # _t_dump_trace "$trace_skip_cnt"
     if [[ "$dump_trace" == true ]]; then
-        t_dump_trace "$trace_skip_cnt"
+        _t_dump_trace "$trace_skip_cnt"
     fi
 }
 
 
+################################################################################
+#                                    API
+################################################################################
+
+
 function t_logdbg() {
     local msg="$1"
-    t_log_base false 1 "DEBUG" "$msg"
+    _t_log_base false 1 "DEBUG" "$msg"
 }
 function t_loginfo() {
     local msg="$1"
-    t_log_base false 1 "INFO " "$msg"
+    _t_log_base false 1 "INFO " "$msg"
 }
 function t_logwarn() {
     local msg="$1"
-    t_log_base false 1 "WARN " "$msg"
+    _t_log_base false 1 "WARN " "$msg"
 }
 function t_logerr() {
     local msg="$1"
-    t_log_base false 1 "ERROR" "$msg"
+    _t_log_base false 1 "ERROR" "$msg"
 }
 
 
 function t_logdbg_st() {
     local msg="$1"
-    t_log_base true 1 "DEBUG" "$msg"
+    _t_log_base true 1 "DEBUG" "$msg"
 }
 function t_loginfo_st() {
     local msg="$1"
-    t_log_base true 1 "INFO " "$msg"
+    _t_log_base true 1 "INFO " "$msg"
 }
 function t_logwarn_st() {
     local msg="$1"
-    t_log_base true 1 "WARN " "$msg"
+    _t_log_base true 1 "WARN " "$msg"
 }
 function t_logerr_st() {
     local msg="$1"
-    t_log_base true 1 "ERROR" "$msg"
+    _t_log_base true 1 "ERROR" "$msg"
 }
-
-
-###################################################
-#                      TEST
-###################################################
 
