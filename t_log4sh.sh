@@ -5,8 +5,9 @@
 #
 # DESCRIPTION
 #   This library provides the logging functions with stack trace dumpling.
-#   Please view the section "API" for details.
 #
+#   Supported OS: Linux
+#   Supported shells: bash, zsh
 #   Supported log levels: DEBUG, INFO, WARN, ERROR
 #
 #   There are two function types for each log level:
@@ -24,10 +25,16 @@
 #       t_log{level} <msg>
 #       t_log{level}_st <msg>
 #
+#       (Please view the section "API" for details.)
+#
 #       Examples:
-#           t_loginfo "Hello, world!"
-#           t_loginfo_st "Hello, world!"
+#           t_logdbg "Hello, debug!"
+#           t_loginfo "Hello, info!"
+#           t_logwarn "Hello, warn!"
+#           t_logerr "Hello, error!"
 #           t_logerr_st "Something happened unexpectedly"
+#           t_logerr_st "Got error status in execution" >&2
+#           t_logerr_st "Argument is invalid" >err.log
 #
 #
 #
@@ -35,6 +42,8 @@
 #   - Commands: readlink
 #
 ################################################################################
+
+
 
 
 
@@ -53,7 +62,7 @@ _T_LOG4SH_THIS_FILE_NAME="${_T_LOG4SH_THIS_FILE_PATH##*/}"
 
 
 ################################################################################
-#                              PRIVATE CONSTANTS
+# PRIVATE CONSTANTS
 ################################################################################
 
 
@@ -72,7 +81,7 @@ _T_LOG4SH_SPACE_ARR_SIZE="${#_T_LOG4SH_SPACE_ARR[@]}"
 
 
 ################################################################################
-#                          INTERNAL API (may expose later)
+# INTERNAL API (may expose later)
 ################################################################################
 
 
@@ -165,7 +174,7 @@ function _t_log_base() {
 
 
 ################################################################################
-#                                    API
+# API
 ################################################################################
 
 
