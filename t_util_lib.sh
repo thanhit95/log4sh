@@ -26,12 +26,17 @@
 ###################################################
 
 
-_T_UTIL_LIB_CUR_NAME=
-if [[ -n $BASH_VERSION ]]; then
-    _T_UTIL_LIB_CUR_NAME="$(basename $BASH_SOURCE)"
+_T_UTIL_LIB_THIS_FILE_PATH=
+if [[ -n "$BASH_VERSION" ]]; then
+    _T_UTIL_LIB_THIS_FILE_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
 elif [[ -n "$ZSH_VERSION" ]]; then
-    _T_UTIL_LIB_CUR_NAME="$(basename "$0")"
+    _T_UTIL_LIB_THIS_FILE_PATH="${0:a}"
 fi
+_T_UTIL_LIB_THIS_BASE_DIR="${_T_UTIL_LIB_THIS_FILE_PATH%/*}"
+_T_UTIL_LIB_THIS_FILE_NAME="${_T_UTIL_LIB_THIS_FILE_PATH##*/}"
+# echo "_T_UTIL_LIB_THIS_FILE_PATH: $_T_UTIL_LIB_THIS_FILE_PATH"
+# echo "_T_UTIL_LIB_THIS_BASE_DIR: $_T_UTIL_LIB_THIS_BASE_DIR"
+# echo "_T_UTIL_LIB_THIS_FILE_NAME: $_T_UTIL_LIB_THIS_FILE_NAME"
 
 
 declare -A T_CHAR_2_VAL_DATA_SIZE_UNIT_MP=(
@@ -60,7 +65,7 @@ function _lo_printerr() {
     local func_name
     local tmp
 
-    if [[ -n $BASH_VERSION ]]; then
+    if [[ -n "$BASH_VERSION" ]]; then
         IFS=' ' read line_no func_name tmp <<< "$(caller 0)"
     elif [[ -n "$ZSH_VERSION" ]]; then
         func_name="${funcstack[2]}"
@@ -69,7 +74,7 @@ function _lo_printerr() {
         line_no=$LINENO
     fi
 
-    echo "$_T_UTIL_LIB_CUR_NAME:$func_name:$line_no $@" 1>&2
+    echo "$_T_UTIL_LIB_THIS_FILE_NAME:$line_no $func_name(): $@" 1>&2
 }
 
 
