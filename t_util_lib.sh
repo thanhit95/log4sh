@@ -1,29 +1,39 @@
 #!/bin/bash
 
 
-###################################################
+################################################################################
 #
 # DESCRIPTION
-#   This script provides a set of utility functions.
-#   Please view the section "Public API" for details.
+#   This library provides a set of utility functions.
+#
+#   Supported OS: Linux
+#   Supported shells: bash, zsh
+#
 #
 #
 # USAGE
-#   . t_util_lib.sh
-#   source t_util_lib.sh
+#   Importing the library:
+#       . t_util_lib.sh
+#       source t_util_lib.sh
+#
+#   Using the API:
+#       Please view the section "Public API" for details.
+#
 #
 #
 # DEPENDENCIES
-#   - Commands: bc, basename
+#   - Commands: bc, readlink
 #
-###################################################
+################################################################################
 
 
 
 
-###################################################
-#                GLOBAL CONSTANTS
-###################################################
+
+
+################################################################################
+# GLOBAL CONSTANTS
+################################################################################
 
 
 _T_UTIL_LIB_THIS_FILE_PATH=
@@ -55,9 +65,9 @@ T_VAL_2_CHAR_DATA_SIZE_UNIT_MP=(b k m g t p)
 T_DATA_SIZE_BI_UNIT_POWER=(1 1024 1048576 1073741824 1099511627776 1125899906842624)
 
 
-###################################################
-#                 PRIVATE FUNCTIONS
-###################################################
+################################################################################
+# PRIVATE FUNCTIONS
+################################################################################
 
 
 function _lo_printerr() {
@@ -78,12 +88,12 @@ function _lo_printerr() {
 }
 
 
-###################################################
-#                   PUBLIC API
-###################################################
+################################################################################
+# API
+################################################################################
 
 
-# Clamp an integer value to a given range.
+# Clamps an integer value to a given range.
 #
 # This function takes three arguments: a minimum value, a maximum value, and a
 # value to clamp. The function returns the clamped value.
@@ -116,7 +126,7 @@ function t_clamp() {
 }
 
 
-# Print the content with a prefix prepended to each line.
+# Prints the content with a prefix prepended to each line.
 #
 # This function takes two arguments: a prefix string and a content string.
 # The content string is read line-by-line and each line is printed with the
@@ -145,7 +155,7 @@ function t_echo_with_prefix() {
 }
 
 
-# Convert a data size from one unit to another.
+# Converts a data size from one unit to another.
 #
 # This function takes an input number with a source unit and converts it
 # to a destination unit using base-2 (IEC standard) conversions. If the
@@ -284,9 +294,9 @@ function t_convert_data_size_bi_unit() {
 }
 
 
-###################################################
-#                      TEST
-###################################################
+################################################################################
+# TEST
+################################################################################
 
 
 # t_convert_data_size_bi_unit _ _ "63756"
