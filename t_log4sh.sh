@@ -64,6 +64,15 @@
 
 
 
+################################################################################
+# INIT
+################################################################################
+
+
+[[ $_T_LOG4SH_SOURCED ]] && return
+_T_LOG4SH_SOURCED=1
+
+
 _T_LOG4SH_THIS_FILE_PATH=
 if [[ -n "$BASH_VERSION" ]]; then
     _T_LOG4SH_THIS_FILE_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
