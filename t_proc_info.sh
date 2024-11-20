@@ -1,34 +1,39 @@
 #!/bin/bash
 
 
-###################################################
+################################################################################
 #
 # DESCRIPTION
-#   This tool provides brief info of a process by using existed tools (top, lsof...)
-#   and displays results in a visual, organized manner.
+#   This tool provides brief info of a process by using existed tools
+#   (top, lsof...) and displays results in a visual, organized manner.
+#
+#   Supported OS: Linux
+#   Supported shells: bash, zsh
+#
 #
 #
 # USAGE
 #   t_proc_info.sh <PID>
 #
-#   Example:
+#   Examples:
 #       t_proc_info.sh 123
+#
 #
 #
 # NOTES
 #   The tool may delay some seconds before displaying the result.
 #
 #
+#
 # DEPENDENCIES
 #   - My common library: file t_util_lib.sh
 #   - Commands: tr, cut, grep, cat, pwd, readlink, id, top, lsof
 #
-###################################################
+################################################################################
 
 
 
-# debug
-# set -x
+
 
 
 _T_PROC_INFO_THIS_FILE_PATH=
@@ -36,6 +41,8 @@ if [[ -n "$BASH_VERSION" ]]; then
     _T_PROC_INFO_THIS_FILE_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
 elif [[ -n "$ZSH_VERSION" ]]; then
     _T_PROC_INFO_THIS_FILE_PATH="${0:a}"
+else
+    _T_PROC_INFO_THIS_FILE_PATH="$(readlink -f "$0")"
 fi
 _T_PROC_INFO_THIS_BASE_DIR="${_T_PROC_INFO_THIS_FILE_PATH%/*}"
 _T_PROC_INFO_THIS_FILE_NAME="${_T_PROC_INFO_THIS_FILE_PATH##*/}"
@@ -47,9 +54,10 @@ _T_PROC_INFO_THIS_FILE_NAME="${_T_PROC_INFO_THIS_FILE_PATH##*/}"
 . "$_T_PROC_INFO_THIS_BASE_DIR/t_util_lib.sh"
 
 
-###################################################
-#                   FUNCTIONS
-###################################################
+################################################################################
+# FUNCTIONS
+################################################################################
+
 
 
 function print_basic_info() {
@@ -254,9 +262,9 @@ function print_fd_info() {
 }
 
 
-###################################################
-#                       MAIN
-###################################################
+################################################################################
+# MAIN
+################################################################################
 
 
 input_pid="$1"
