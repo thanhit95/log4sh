@@ -13,6 +13,7 @@ TEST01_BASE_DIR="${TEST01_FILE_PATH%/*}"
 
 
 . "$TEST01_BASE_DIR/test_sub.sh"
+# . "$TEST01_BASE_DIR/../../t_log4sh.sh"
 
 
 function do_sth() {

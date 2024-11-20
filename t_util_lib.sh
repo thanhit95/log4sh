@@ -32,8 +32,12 @@
 
 
 ################################################################################
-# GLOBAL CONSTANTS
+# INIT
 ################################################################################
+
+
+[[ $_T_UTIL_LIB_SOURCED ]] && return
+_T_UTIL_LIB_SOURCED=1
 
 
 _T_UTIL_LIB_THIS_FILE_PATH=
@@ -49,6 +53,11 @@ _T_UTIL_LIB_THIS_FILE_NAME="${_T_UTIL_LIB_THIS_FILE_PATH##*/}"
 # echo "_T_UTIL_LIB_THIS_FILE_PATH: $_T_UTIL_LIB_THIS_FILE_PATH"
 # echo "_T_UTIL_LIB_THIS_BASE_DIR: $_T_UTIL_LIB_THIS_BASE_DIR"
 # echo "_T_UTIL_LIB_THIS_FILE_NAME: $_T_UTIL_LIB_THIS_FILE_NAME"
+
+
+################################################################################
+# GLOBAL CONSTANTS
+################################################################################
 
 
 declare -A T_CHAR_2_VAL_DATA_SIZE_UNIT_MP=(
