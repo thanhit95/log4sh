@@ -17,7 +17,7 @@
 #       source t_util_lib.sh
 #
 #   Using the API:
-#       Please view the section "Public API" for details.
+#       Please view the section "API" for details.
 #
 #
 #
