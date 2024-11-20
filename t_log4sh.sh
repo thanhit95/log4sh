@@ -4,8 +4,9 @@
 ################################################################################
 #
 # DESCRIPTION
-#   This library provides the logging functions with stack trace dumpling.
-#   The library can load configurations from a file (if needed).
+#   This library provides the logging functions, plus two features:
+#   1. Logging with stack trace dump.
+#   2. Loading configurations from a file.
 #
 #   Supported OS: Linux
 #   Supported shells: bash, zsh
