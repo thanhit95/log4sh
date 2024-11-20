@@ -4,12 +4,39 @@ Random Linux shell stuff.
 
 This repository contains my random Linux shell stuff, including:
 
-- The utility library
+- The utility libraries
 - The tools
 
-## The utility library
+## The utility libraries
 
-- `t_util_lib.sh`:
+### t_log4sh.sh
+
+Logging library which supports stack trace dump and configurations.
+
+Output example:
+
+```shell
+# Calling the API fuctions:
+#   t_logdbg "this is a msg with debug level"
+#   t_loginfo "this is a msg with info level"
+#   t_logwarn "this is a msg with warn level"
+#   t_logerr "this is a msg with err level"
+#   t_logwarn_st "something happened unexpectedly"
+#
+# Output:
+2024-11-20 22:11:13.486 [DEBUG] test_sub.sh:14: do_bar: this is a msg with debug level
+2024-11-20 22:11:13.489 [INFO ] test_sub.sh:15: do_bar: this is a msg with info level
+2024-11-20 22:11:13.492 [WARN ] test_sub.sh:16: do_bar: this is a msg with warn level
+2024-11-20 22:11:13.494 [ERROR] test_sub.sh:17: do_bar: this is a msg with err level
+2024-11-20 22:11:13.497 [WARN ] test_sub.sh:18: do_bar: something happened unexpectedly
+    at do_bar (/home/thanh/linux_shell_kit/test/log4sh/test_sub.sh:18)
+    at do_foo (/home/thanh/linux_shell_kit/test/log4sh/test_sub.sh:23)
+    at do_sth (test/log4sh/test01.sh:17)
+    at main (test/log4sh/test01.sh:21)
+Done testing
+```
+
+### t_util_lib.sh
   - Data size conversion (e.g: from gibibytes to bytes)
   - Echo with prefix
 
@@ -19,10 +46,10 @@ This repository contains my random Linux shell stuff, including:
 
 Provides brief info of a process by using existed tools (top, lsof...) and displays results in a visual, organized manner.
 
-Example output:
+Output example:
 
 ```shell
-$ ./t_proc_info.sh 60302
+$ ./t_proc_info.sh 39614
 
 BASIC INFO:
   pid: 39614, ppid: 39570

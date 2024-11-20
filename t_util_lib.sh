@@ -1,37 +1,54 @@
 #!/bin/bash
 
 
-###################################################
+################################################################################
 #
 # DESCRIPTION
-#   This script provides a set of utility functions.
-#   Please view the section "Public API" for details.
+#   This library provides a set of utility functions.
+#
+#   Supported OS: Linux
+#   Supported shells: bash, zsh
+#
 #
 #
 # USAGE
-#   . t_util_lib.sh
-#   source t_util_lib.sh
+#   Importing the library:
+#       . t_util_lib.sh
+#       source t_util_lib.sh
+#
+#   Using the API:
+#       Please view the section "API" for details.
+#
 #
 #
 # DEPENDENCIES
-#   - Commands: bc, basename
+#   - Commands: bc, readlink
 #
-###################################################
+################################################################################
 
 
 
 
-###################################################
-#                GLOBAL CONSTANTS
-###################################################
 
 
-_T_UTIL_LIB_CUR_NAME=
-if [[ -n $BASH_VERSION ]]; then
-    _T_UTIL_LIB_CUR_NAME="$(basename $BASH_SOURCE)"
+################################################################################
+# GLOBAL CONSTANTS
+################################################################################
+
+
+_T_UTIL_LIB_THIS_FILE_PATH=
+if [[ -n "$BASH_VERSION" ]]; then
+    _T_UTIL_LIB_THIS_FILE_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
 elif [[ -n "$ZSH_VERSION" ]]; then
-    _T_UTIL_LIB_CUR_NAME="$(basename "$0")"
+    _T_UTIL_LIB_THIS_FILE_PATH="${0:a}"
+else
+    _T_UTIL_LIB_THIS_FILE_PATH="$(readlink -f "$0")"
 fi
+_T_UTIL_LIB_THIS_BASE_DIR="${_T_UTIL_LIB_THIS_FILE_PATH%/*}"
+_T_UTIL_LIB_THIS_FILE_NAME="${_T_UTIL_LIB_THIS_FILE_PATH##*/}"
+# echo "_T_UTIL_LIB_THIS_FILE_PATH: $_T_UTIL_LIB_THIS_FILE_PATH"
+# echo "_T_UTIL_LIB_THIS_BASE_DIR: $_T_UTIL_LIB_THIS_BASE_DIR"
+# echo "_T_UTIL_LIB_THIS_FILE_NAME: $_T_UTIL_LIB_THIS_FILE_NAME"
 
 
 declare -A T_CHAR_2_VAL_DATA_SIZE_UNIT_MP=(
@@ -50,9 +67,9 @@ T_VAL_2_CHAR_DATA_SIZE_UNIT_MP=(b k m g t p)
 T_DATA_SIZE_BI_UNIT_POWER=(1 1024 1048576 1073741824 1099511627776 1125899906842624)
 
 
-###################################################
-#                 PRIVATE FUNCTIONS
-###################################################
+################################################################################
+# PRIVATE FUNCTIONS
+################################################################################
 
 
 function _lo_printerr() {
@@ -60,7 +77,7 @@ function _lo_printerr() {
     local func_name
     local tmp
 
-    if [[ -n $BASH_VERSION ]]; then
+    if [[ -n "$BASH_VERSION" ]]; then
         IFS=' ' read line_no func_name tmp <<< "$(caller 0)"
     elif [[ -n "$ZSH_VERSION" ]]; then
         func_name="${funcstack[2]}"
@@ -69,16 +86,16 @@ function _lo_printerr() {
         line_no=$LINENO
     fi
 
-    echo "$_T_UTIL_LIB_CUR_NAME:$func_name:$line_no $@" 1>&2
+    echo "$_T_UTIL_LIB_THIS_FILE_NAME:$line_no $func_name(): $@" 1>&2
 }
 
 
-###################################################
-#                   PUBLIC API
-###################################################
+################################################################################
+# API
+################################################################################
 
 
-# Clamp an integer value to a given range.
+# Clamps an integer value to a given range.
 #
 # This function takes three arguments: a minimum value, a maximum value, and a
 # value to clamp. The function returns the clamped value.
@@ -111,7 +128,7 @@ function t_clamp() {
 }
 
 
-# Print the content with a prefix prepended to each line.
+# Prints the content with a prefix prepended to each line.
 #
 # This function takes two arguments: a prefix string and a content string.
 # The content string is read line-by-line and each line is printed with the
@@ -140,7 +157,7 @@ function t_echo_with_prefix() {
 }
 
 
-# Convert a data size from one unit to another.
+# Converts a data size from one unit to another.
 #
 # This function takes an input number with a source unit and converts it
 # to a destination unit using base-2 (IEC standard) conversions. If the
@@ -279,9 +296,9 @@ function t_convert_data_size_bi_unit() {
 }
 
 
-###################################################
-#                      TEST
-###################################################
+################################################################################
+# TEST
+################################################################################
 
 
 # t_convert_data_size_bi_unit _ _ "63756"
