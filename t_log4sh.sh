@@ -32,14 +32,14 @@
 #           t_loginfo "Hello, info!"
 #           t_logwarn "Hello, warn!"
 #           t_logerr "Hello, error!"
-#           t_logerr_st "Something happened unexpectedly"
+#           t_logwarn_st "Something happened unexpectedly"
 #           t_logerr_st "Got error status in execution" >&2
 #           t_logerr_st "Argument is invalid" >err.log
 #
 #
 #
 # DEPENDENCIES
-#   - Commands: readlink
+#   - Commands: readlink, date
 #
 ################################################################################
 
@@ -81,6 +81,17 @@ _T_LOG4SH_SPACE_ARR_SIZE="${#_T_LOG4SH_SPACE_ARR[@]}"
 
 
 ################################################################################
+# CONFIGURATIONS
+################################################################################
+
+
+_T_LOG4SH_CFG_OUT_FILE_PATH=
+_T_LOG4SH_CFG_LOG_FORMAT=
+_T_LOG4SH_CFG_DATE_FORMAT=
+_T_LOG4SH_CFG_DATE_TIME_ZONE=
+
+
+################################################################################
 # INTERNAL API (may expose later)
 ################################################################################
 
@@ -92,11 +103,11 @@ _T_LOG4SH_SPACE_ARR_SIZE="${#_T_LOG4SH_SPACE_ARR[@]}"
 #   prefix_sp_cnt   The number of spaces to prefix each line with. The default is 4.
 #
 # Examples:
-#   _t_dump_trace
-#   _t_dump_trace 1
-#   _t_dump_trace 0 8
+#   _t_log4sh_dump_trace
+#   _t_log4sh_dump_trace 1
+#   _t_log4sh_dump_trace 0 8
 #
-function _t_dump_trace() {
+function _t_log4sh_dump_trace() {
     local skip_cnt="$1"
     local prefix_sp_cnt="$2"
     local n tmp
@@ -129,6 +140,74 @@ function _t_dump_trace() {
 }
 
 
+function _t_log4sh_get_date_by_format() {
+    if [[ -z "$_T_LOG4SH_CFG_DATE_TIME_ZONE" ]]; then
+        date "+${_T_LOG4SH_CFG_DATE_FORMAT}"
+    else
+        TZ="$_T_LOG4SH_CFG_DATE_TIME_ZONE" date "+${_T_LOG4SH_CFG_DATE_FORMAT}"
+    fi
+}
+
+
+# Prints a log message with the specified format.
+#
+# The format string can contain the following place holders:
+#   %d: date
+#   %l: level
+#   %f: file name
+#   %L: line number
+#   %F: function name
+#   %m: message
+#
+# The function takes 7 arguments:
+#   fmt      The format string
+#   dt       The date string
+#   level    The log level string
+#   file_name    The file name string
+#   line_no   The line number string
+#   func_name The function name string
+#   msg      The message string
+#
+function _t_log4sh_print_by_format() {
+    local fmt="$1"
+    local dt="$2"
+    local level="$3"
+    local file_name="$4"
+    local line_no="$5"
+    local func_name="$6"
+    local msg="$7"
+
+    local res=
+    local chr
+    local fmt_len="${#fmt}"
+
+    for (( i=0; i<fmt_len; ++i )); do
+        chr="${fmt:$i:1}"
+        if [[ "$chr" != "%" ]]; then
+            res+="$chr"
+            continue
+        fi
+        ((++i))
+        chr="${fmt:$i:1}"
+        if [[ "$chr" == "d" ]]; then
+            res+="$dt"
+        elif [[ "$chr" == "l" ]]; then
+            res+="$level"
+        elif [[ "$chr" == "f" ]]; then
+            res+="$file_name"
+        elif [[ "$chr" == "L" ]]; then
+            res+="$line_no"
+        elif [[ "$chr" == "F" ]]; then
+            res+="$func_name"
+        elif [[ "$chr" == "m" ]]; then
+            res+="$msg"
+        fi
+    done
+
+    echo "$res"
+}
+
+
 # Prints a log message with the current time, file name, line number, function
 # name, and the given message.
 #
@@ -139,14 +218,16 @@ function _t_dump_trace() {
 #   msg             The log message.
 #
 # Examples:
-#   _t_log_base true 0 "INFO" "Hello, world!"
+#   _t_log4sh_log_base true 0 "INFO" "Hello, world!"
 #
-function _t_log_base() {
+function _t_log4sh_log_base() {
     local dump_trace="$1"
     local trace_skip_cnt="$2"
     local level="$3"
     local msg="$4"
+    local dt
     local file_name line_no func_name
+    local log_msg
 
     if [[ -n "$BASH_VERSION" ]]; then
         file_name="${BASH_SOURCE[$trace_skip_cnt+1]##*/}"
@@ -159,16 +240,32 @@ function _t_log_base() {
         func_name="${funcstack[$trace_skip_cnt+2]}"
     fi
 
-    # local dt="$(TZ=UTC-7 date '+%F %T.%3N')"
-    local dt="$(date '+%Y-%m-%d %H:%M:%S.%3N')"
+    if [[ -z "$_T_LOG4SH_CFG_DATE_FORMAT" ]]; then
+        # dt="$(TZ=UTC-7 date '+%F %T.%3N')"
+        dt="$(date '+%Y-%m-%d %H:%M:%S.%3N')"
+    else
+        dt="$(_t_log4sh_get_date_by_format)"
+    fi
 
-    echo "$dt [$level] $file_name:$line_no: $func_name: $msg"
-    # echo "$dt [$level] $func_name: $msg"
+    if [[ -z "$_T_LOG4SH_CFG_LOG_FORMAT" ]]; then
+        log_msg="$dt [$level] $file_name:$line_no: $func_name: $msg"
+        # log_msg="$dt [$level] $func_name: $msg"
+    else
+        log_msg="$(_t_log4sh_print_by_format "$_T_LOG4SH_CFG_LOG_FORMAT" \
+                "$dt" "$level" "$file_name" "$line_no" "$func_name" "$msg")"
+    fi
 
-    (( ++trace_skip_cnt ))
-    # _t_dump_trace "$trace_skip_cnt"
+    # (( ++trace_skip_cnt ))
+    # _t_log4sh_dump_trace "$trace_skip_cnt"
     if [[ "$dump_trace" == true ]]; then
-        _t_dump_trace "$trace_skip_cnt"
+        stack_trace_str="$(_t_log4sh_dump_trace "(( trace_skip_cnt + 1 ))")"
+        log_msg="$log_msg"$'\n'"$stack_trace_str"
+    fi
+
+    if [[ -z "$_T_LOG4SH_CFG_OUT_FILE_PATH" ]]; then
+        echo "$log_msg"
+    else
+        echo "$log_msg" >> "$_T_LOG4SH_CFG_OUT_FILE_PATH"
     fi
 }
 
@@ -178,38 +275,78 @@ function _t_log_base() {
 ################################################################################
 
 
+function t_log4sh_init_from_cfg_file() {
+    local cfg_file_path="$1"
+
+    if [[ ! -f "$cfg_file_path" ]]; then
+        # Recursion dependency? I think it is okay
+        t_logerr_st "Configuration file not found: $cfg_file_path" >&2
+        # echo "log4sh: Configuration file not found: $cfg_file_path" >&2
+        return 1
+    fi
+
+    _T_LOG4SH_CFG_OUT_FILE_PATH=
+    _T_LOG4SH_CFG_LOG_FORMAT=
+    _T_LOG4SH_CFG_DATE_FORMAT=
+    _T_LOG4SH_CFG_DATE_TIME_ZONE=
+
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        if [[ "$line" == "#"* ]]; then
+            continue
+        fi
+
+        if [[ "$line" == "file_path="* ]]; then
+            _T_LOG4SH_CFG_OUT_FILE_PATH="${line#*=}"
+        elif [[ "$line" == "log_format="* ]]; then
+            _T_LOG4SH_CFG_LOG_FORMAT="${line#*=}"
+        elif [[ "$line" == "date_format="* ]]; then
+            _T_LOG4SH_CFG_DATE_FORMAT="${line#*=}"
+        elif [[ "$line" == "date_time_zone="* ]]; then
+            _T_LOG4SH_CFG_DATE_TIME_ZONE="${line#*=}"
+        fi
+    done < "$cfg_file_path"
+
+    # echo "file_path: $_T_LOG4SH_CFG_OUT_FILE_PATH"
+    # echo "log_format: $_T_LOG4SH_CFG_LOG_FORMAT"
+    # echo "date_format: $_T_LOG4SH_CFG_DATE_FORMAT"
+    # echo "date_time_zone: $_T_LOG4SH_CFG_DATE_TIME_ZONE"
+
+    return 0
+}
+
+
 function t_logdbg() {
     local msg="$1"
-    _t_log_base false 1 "DEBUG" "$msg"
+    _t_log4sh_log_base false 1 "DEBUG" "$msg"
 }
 function t_loginfo() {
     local msg="$1"
-    _t_log_base false 1 "INFO " "$msg"
+    _t_log4sh_log_base false 1 "INFO " "$msg"
 }
 function t_logwarn() {
     local msg="$1"
-    _t_log_base false 1 "WARN " "$msg"
+    _t_log4sh_log_base false 1 "WARN " "$msg"
 }
 function t_logerr() {
     local msg="$1"
-    _t_log_base false 1 "ERROR" "$msg"
+    _t_log4sh_log_base false 1 "ERROR" "$msg"
 }
 
 
 function t_logdbg_st() {
     local msg="$1"
-    _t_log_base true 1 "DEBUG" "$msg"
+    _t_log4sh_log_base true 1 "DEBUG" "$msg"
 }
 function t_loginfo_st() {
     local msg="$1"
-    _t_log_base true 1 "INFO " "$msg"
+    _t_log4sh_log_base true 1 "INFO " "$msg"
 }
 function t_logwarn_st() {
     local msg="$1"
-    _t_log_base true 1 "WARN " "$msg"
+    _t_log4sh_log_base true 1 "WARN " "$msg"
 }
 function t_logerr_st() {
     local msg="$1"
-    _t_log_base true 1 "ERROR" "$msg"
+    _t_log4sh_log_base true 1 "ERROR" "$msg"
 }
 
