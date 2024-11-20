@@ -297,7 +297,7 @@ function t_log4sh_init_from_cfg_file() {
     local cfg_file_path="$1"
 
     if [[ ! -f "$cfg_file_path" ]]; then
-        # Recursion dependency? I think it is okay
+        # Circle dependency? I think it is okay
         t_logerr_st "Configuration file not found: $cfg_file_path" >&2
         # echo "log4sh: Configuration file not found: $cfg_file_path" >&2
         return 1
