@@ -59,6 +59,7 @@ _T_PROC_INFO_THIS_FILE_NAME="${_T_PROC_INFO_THIS_FILE_PATH##*/}"
 ################################################################################
 
 
+
 function print_basic_info() {
     local pid="$1"
     local bin_exe_path="$(readlink -f /proc/$pid/exe)"
