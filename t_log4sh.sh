@@ -5,6 +5,7 @@
 #
 # DESCRIPTION
 #   This library provides the logging functions with stack trace dumpling.
+#   The library can load configurations from a file (if needed).
 #
 #   Supported OS: Linux
 #   Supported shells: bash, zsh
@@ -35,6 +36,17 @@
 #           t_logwarn_st "Something happened unexpectedly"
 #           t_logerr_st "Got error status in execution" >&2
 #           t_logerr_st "Argument is invalid" >err.log
+#
+#   Loading configurations from a file:
+#       t_log4sh_init_from_cfg_file <cfg_file_path>
+#
+#       (Please view the the example configuration file in
+#       "test/log4sh/test02_config.ini" for details.)
+#
+#
+# NOTES
+#   - By default, the output is sent to stdout. If you want to send the output
+#     to a file, you may apply the configuration file.
 #
 #
 #
@@ -89,6 +101,7 @@ _T_LOG4SH_CFG_OUT_FILE_PATH=
 _T_LOG4SH_CFG_LOG_FORMAT=
 _T_LOG4SH_CFG_DATE_FORMAT=
 _T_LOG4SH_CFG_DATE_TIME_ZONE=
+_T_LOG4SH_CFG_TRACE_DUMP_RESOLVE_ABS_PATH=
 
 
 ################################################################################
@@ -122,6 +135,7 @@ function _t_log4sh_dump_trace() {
     if [[ -n "$BASH_VERSION" ]]; then
         while read -r line_no func_name file_name < <(caller $i); do
             if [[ "$i" -ge "$skip_cnt" ]]; then
+                [[ "$_T_LOG4SH_CFG_TRACE_DUMP_RESOLVE_ABS_PATH" == "true" ]] && file_name="$(readlink -f "$file_name")"
                 echo "${_T_LOG4SH_SPACE_ARR[@]:$prefix_sp_cnt:1}at $func_name ($file_name:$line_no)"
             fi
             ((++i))
@@ -133,6 +147,7 @@ function _t_log4sh_dump_trace() {
             file_name="${funcfiletrace[$i]%\:*}"
             line_no="${funcfiletrace[$i]#*\:}"
             func_name="${funcstack[$i+1]}"
+            [[ "$_T_LOG4SH_CFG_TRACE_DUMP_RESOLVE_ABS_PATH" == "true" ]] && file_name="$(readlink -f "$file_name")"
             [[ -z "$func_name" && "$i" -eq "$n" ]] && func_name=main
             echo "${_T_LOG4SH_SPACE_ARR[@]:$prefix_sp_cnt:1}at $func_name ($file_name:$line_no)"
         done
@@ -289,6 +304,7 @@ function t_log4sh_init_from_cfg_file() {
     _T_LOG4SH_CFG_LOG_FORMAT=
     _T_LOG4SH_CFG_DATE_FORMAT=
     _T_LOG4SH_CFG_DATE_TIME_ZONE=
+    _T_LOG4SH_CFG_TRACE_DUMP_RESOLVE_ABS_PATH=
 
     while IFS= read -r line || [[ -n "$line" ]]; do
         if [[ "$line" == "#"* ]]; then
@@ -303,6 +319,8 @@ function t_log4sh_init_from_cfg_file() {
             _T_LOG4SH_CFG_DATE_FORMAT="${line#*=}"
         elif [[ "$line" == "date_time_zone="* ]]; then
             _T_LOG4SH_CFG_DATE_TIME_ZONE="${line#*=}"
+        elif [[ "$line" == "trace_dump_resolve_abs_path="* ]]; then
+            _T_LOG4SH_CFG_TRACE_DUMP_RESOLVE_ABS_PATH="${line#*=}"
         fi
     done < "$cfg_file_path"
 
@@ -310,6 +328,7 @@ function t_log4sh_init_from_cfg_file() {
     # echo "log_format: $_T_LOG4SH_CFG_LOG_FORMAT"
     # echo "date_format: $_T_LOG4SH_CFG_DATE_FORMAT"
     # echo "date_time_zone: $_T_LOG4SH_CFG_DATE_TIME_ZONE"
+    # echo "trace_dump_resolve_abs_path: $_T_LOG4SH_CFG_TRACE_DUMP_RESOLVE_ABS_PATH"
 
     return 0
 }
