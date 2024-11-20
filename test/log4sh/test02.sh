@@ -6,6 +6,8 @@ if [[ -n "$BASH_VERSION" ]]; then
     TEST02_FILE_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
 elif [[ -n "$ZSH_VERSION" ]]; then
     TEST02_FILE_PATH="${0:a}"
+else
+    TEST02_FILE_PATH="$(readlink -f "$0")"
 fi
 TEST02_BASE_DIR="${TEST02_FILE_PATH%/*}"
 

@@ -3,6 +3,8 @@ if [[ -n "$BASH_VERSION" ]]; then
     TEST_SUB_FILE_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
 elif [[ -n "$ZSH_VERSION" ]]; then
     TEST_SUB_FILE_PATH="${0:a}"
+else
+    TEST_SUB_FILE_PATH="$(readlink -f "$0")"
 fi
 TEST_SUB_BASE_DIR="${TEST_SUB_FILE_PATH%/*}"
 

@@ -65,6 +65,8 @@ if [[ -n "$BASH_VERSION" ]]; then
     _T_LOG4SH_THIS_FILE_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
 elif [[ -n "$ZSH_VERSION" ]]; then
     _T_LOG4SH_THIS_FILE_PATH="${0:a}"
+else
+    _T_LOG4SH_THIS_FILE_PATH="$(readlink -f "$0")"
 fi
 _T_LOG4SH_THIS_BASE_DIR="${_T_LOG4SH_THIS_FILE_PATH%/*}"
 _T_LOG4SH_THIS_FILE_NAME="${_T_LOG4SH_THIS_FILE_PATH##*/}"
