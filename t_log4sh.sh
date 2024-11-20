@@ -41,8 +41,11 @@
 #   Loading configurations from a file:
 #       t_log4sh_init_from_cfg_file <cfg_file_path>
 #
-#       (Please view the the example configuration file in
-#       "test/log4sh/test02_config.ini" for details.)
+#
+#
+# EXAMPLES
+#   See the complete example scripts in "test/log4sh/"
+#
 #
 #
 # NOTES
