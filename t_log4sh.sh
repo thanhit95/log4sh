@@ -341,7 +341,8 @@ function _t_log4sh_log_base() {
                 echo "$log_msg" >> "$_T_LOG4SH_CFG_CHN_FILE_PATH"
                 ;;
             "$_T_LOG4SH_CMD_CHN")
-                echo "$log_msg" | $_T_LOG4SH_CFG_CHN_CMD_CMDLINE
+                # echo "$log_msg" | $_T_LOG4SH_CFG_CHN_CMD_CMDLINE
+                echo "$log_msg" | eval ${_T_LOG4SH_CFG_CHN_CMD_CMDLINE}
                 ;;
             *)
                 ;;
