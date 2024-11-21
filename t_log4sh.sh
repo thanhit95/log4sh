@@ -366,6 +366,39 @@ function t_log4sh_print_configs() {
 }
 
 
+# Sets a configuration value.
+#
+# Arguments:
+#   key         The key of the configuration value.
+#   val         The value of the configuration value.
+#   line        The line of the configuration file.
+#               When key and val is empty, use line from this as key and value.
+#               Line syntax: <key>=<value>
+# Example:
+#   t_log4sh_set_config "log_format" "%d %l %f:%L %m"
+#   t_log4sh_set_config "" "" "log_format=%d %l %f:%L %m"
+#
+# Config keys:
+#   log_format: Log message format
+#               Placeholders:
+#                   %d: date
+#                   %l: level
+#                   %f: file name
+#                   %L: line number
+#                   %F: function name
+#                   %m: message
+#   date_format: Date format used in log message
+#   date_time_zone: Time zone used in date
+#   trace_dump_resolve_abs_path: Whether to convert relative path to absolute path
+#   threshold_min_level: Minimum log level (integer)
+#   threshold_max_level: Maximum log level (integer)
+#                        Note: Log levels: 1=TRACE, 2=DEBUG, 3=INFO,
+#                                          4=WARN, 5=ERROR, 6=FATAL
+#   channels: Comma-separated list of channels
+#             Available channels: stdout, stderr, file, cmd
+#   channel.file.path: File path for 'file' channel
+#   channel.cmd.cmdline: Command line for 'cmd' channel
+#
 function t_log4sh_set_config() {
     local key="$1"
     local val="$2"
@@ -430,6 +463,34 @@ function t_log4sh_set_config() {
 }
 
 
+# Initializes log4sh from a configuration file.
+#
+# Arguments:
+#   cfg_file_path   Path to the configuration file.
+#
+# The configuration file format is as follows:
+#   <key>=<value>
+#   <key>=<value>
+#   ...
+#   <key>=<value>
+#
+#   key: log_format, date_format, date_time_zone, trace_dump_resolve_abs_path,
+#        threshold_min_level, threshold_max_level, channels, channel.file.path,
+#        channel.cmd.cmdline
+#   value: value of the key
+#
+#   Please refer to the function "t_log4sh_set_config" for details.
+#
+#   Example content of configuration file:
+#       log_format=%d %l %f:%L %m
+#       date_format=%Y-%m-%d %H:%M:%S
+#       date_time_zone=UTC-2
+#       trace_dump_resolve_abs_path=true
+#       threshold_min_level=1
+#       threshold_max_level=6
+#       channels=stderr,file
+#       channel.file.path=/var/log/app.log
+#
 function t_log4sh_init_from_cfg_file() {
     local cfg_file_path="$1"
 
