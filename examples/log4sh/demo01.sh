@@ -9,7 +9,7 @@
 . "./t_log4sh.sh"
 
 
-function verify_data() {
+function check_data() {
     local a=(9 8 7)
     # t_logtrace "msg with trace level"
     # t_logdbg "msg with debug level"
@@ -22,7 +22,7 @@ function verify_data() {
 
 
 function send_request() {
-    verify_data
+    check_data
 }
 
 
@@ -34,11 +34,11 @@ echo "DONE DEMO01"
 # Expected output:
 #
 # BEGIN DEMO01
-# 2024-11-22 00:50:24.535 [INFO ] demo01.sh:16: verify_data: msg with info level
-# 2024-11-22 00:50:24.537 [WARN ] demo01.sh:17: verify_data: msg with warn level, plus array: 9 8 7
-# 2024-11-22 00:50:24.539 [ERROR] demo01.sh:18: verify_data: msg with err level
-# 2024-11-22 00:50:24.540 [WARN ] demo01.sh:20: verify_data: illegal string format [] %d %l
-#     at verify_data (./examples/log4sh/demo01.sh:20)
+# 2024-11-22 00:50:24.535 [INFO ] demo01.sh:16: check_data: msg with info level
+# 2024-11-22 00:50:24.537 [WARN ] demo01.sh:17: check_data: msg with warn level, plus array: 9 8 7
+# 2024-11-22 00:50:24.539 [ERROR] demo01.sh:18: check_data: msg with err level
+# 2024-11-22 00:50:24.540 [WARN ] demo01.sh:20: check_data: illegal string format [] %d %l
+#     at check_data (./examples/log4sh/demo01.sh:20)
 #     at send_request (./examples/log4sh/demo01.sh:25)
 #     at main (./examples/log4sh/demo01.sh:30)
 # DONE DEMO01

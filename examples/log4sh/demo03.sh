@@ -18,7 +18,7 @@ CUR_BASE_DIR="${CUR_FILE_PATH%/*}"
 . "$CUR_BASE_DIR/../../t_log4sh.sh"
 
 
-function verify_data() {
+function check_data() {
     local a=(9 8 7)
     # t_logtrace "msg with trace level"
     # t_logdbg "msg with debug level"
@@ -31,7 +31,7 @@ function verify_data() {
 
 
 function send_request() {
-    verify_data
+    check_data
 }
 
 
@@ -59,11 +59,11 @@ echo -e "\nDONE DEMO03"
 # BEGIN DEMO03
 #
 # ---- BEGIN TESTING WITH CURRENT LOG4SH CONFIGS ----
-# 2024-11-22 00:52:24.628 [INFO ] demo03.sh:25: verify_data: msg with info level
-# 2024-11-22 00:52:24.630 [WARN ] demo03.sh:26: verify_data: msg with warn level, plus array: 9 8 7
-# 2024-11-22 00:52:24.632 [ERROR] demo03.sh:27: verify_data: msg with err level
-# 2024-11-22 00:52:24.635 [WARN ] demo03.sh:29: verify_data: illegal string format [] %d %l
-#     at verify_data (./examples/log4sh/demo03.sh:29)
+# 2024-11-22 00:52:24.628 [INFO ] demo03.sh:25: check_data: msg with info level
+# 2024-11-22 00:52:24.630 [WARN ] demo03.sh:26: check_data: msg with warn level, plus array: 9 8 7
+# 2024-11-22 00:52:24.632 [ERROR] demo03.sh:27: check_data: msg with err level
+# 2024-11-22 00:52:24.635 [WARN ] demo03.sh:29: check_data: illegal string format [] %d %l
+#     at check_data (./examples/log4sh/demo03.sh:29)
 #     at send_request (./examples/log4sh/demo03.sh:34)
 #     at main (./examples/log4sh/demo03.sh:43)
 #
@@ -71,7 +71,7 @@ echo -e "\nDONE DEMO03"
 # Friday 00:52:24 (( WARN  )) demo03.sh at line 26: msg with warn level, plus array: 9 8 7
 # Friday 00:52:24 (( ERROR )) demo03.sh at line 27: msg with err level
 # Friday 00:52:24 (( WARN  )) demo03.sh at line 29: illegal string format [] %d %l
-#     at verify_data (./examples/log4sh/demo03.sh:29)
+#     at check_data (./examples/log4sh/demo03.sh:29)
 #     at send_request (./examples/log4sh/demo03.sh:34)
 #     at main (./examples/log4sh/demo03.sh:52)
 #

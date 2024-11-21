@@ -21,7 +21,7 @@ CUR_BASE_DIR="${CUR_FILE_PATH%/*}"
 . "$CUR_BASE_DIR/../../t_log4sh.sh"
 
 
-function verify_data() {
+function check_data() {
     local a=(9 8 7)
     # t_logtrace "msg with trace level"
     # t_logdbg "msg with debug level"
@@ -34,7 +34,7 @@ function verify_data() {
 
 
 function send_request() {
-    verify_data
+    check_data
 }
 
 
@@ -66,11 +66,11 @@ echo -e "\nDONE DEMO02"
 # channel.cmd.cmdline:
 #
 # ---- BEGIN TESTING ----
-# 2024-11-22 00:51:05.290 [INFO ] demo02.sh:28: verify_data: msg with info level
-# 2024-11-22 00:51:05.293 [WARN ] demo02.sh:29: verify_data: msg with warn level, plus array: 9 8 7
-# 2024-11-22 00:51:05.295 [ERROR] demo02.sh:30: verify_data: msg with err level
-# 2024-11-22 00:51:05.297 [WARN ] demo02.sh:32: verify_data: illegal string format [] %d %l
-#     at verify_data (./examples/log4sh/demo02.sh:32)
+# 2024-11-22 00:51:05.290 [INFO ] demo02.sh:28: check_data: msg with info level
+# 2024-11-22 00:51:05.293 [WARN ] demo02.sh:29: check_data: msg with warn level, plus array: 9 8 7
+# 2024-11-22 00:51:05.295 [ERROR] demo02.sh:30: check_data: msg with err level
+# 2024-11-22 00:51:05.297 [WARN ] demo02.sh:32: check_data: illegal string format [] %d %l
+#     at check_data (./examples/log4sh/demo02.sh:32)
 #     at send_request (./examples/log4sh/demo02.sh:37)
 #     at main (./examples/log4sh/demo02.sh:47)
 #

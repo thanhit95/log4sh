@@ -3,18 +3,28 @@
 
 ################################################################################
 #
+# FILE NAME
+#   t_log4sh.sh
+#
+# AUTHOR
+#   Thanh Nguyen (thanh.it1995@gmail.com)
+#
+# LICENSE
+#    BSD-3-Clause license
+#
+#
+#
 # DESCRIPTION
-#   This library provides the logging functions, plus two features:
-#   1. Logging with stack trace dump.
-#   2. Loading configurations from a file.
+#   This library provides the logging functions with common features:
+#   - Log level control
+#   - Log message formatting
+#   - Multiple output channels
+#   - Stack trace dump
+#   - Configuration file
 #
 #   Supported OS: Linux
 #   Supported shells: bash, zsh
-#   Supported log levels: DEBUG, INFO, WARN, ERROR
-#
-#   There are two function types for each log level:
-#       t_log{level} and t_log{level}_st
-#   The postfix "_st" indicates that the function will dump the call stack.
+#   Supported log levels: TRACE, DEBUG, INFO, WARN, ERROR, FATAL
 #
 #
 #
@@ -27,7 +37,8 @@
 #       t_log{level} <msg>
 #       t_log{level}_st <msg>
 #
-#       (Please view the section "API" for details.)
+#       The postfix "_st" indicates that the function will dump the call stack.
+#       Please view the section "API" for details.
 #
 #       Examples:
 #           t_logdbg "Hello, debug!"
@@ -38,18 +49,15 @@
 #           t_logerr_st "Got error status in execution" >&2
 #           t_logerr_st "Argument is invalid" >err.log
 #
-#   Loading configurations from a file:
-#       t_log4sh_init_from_cfg_file <cfg_file_path>
-#
 #
 #
 # EXAMPLES
-#   See the complete example scripts in "test/log4sh/"
+#   See the complete example scripts in "examples/log4sh/"
 #
 #
 #
 # NOTES
-#   - By default, the output is sent to stdout. If you want to send the output
+#   - By default, the output is sent to stdout. If you want to send the logs
 #     to a file, you may apply the configuration file.
 #
 #
@@ -479,17 +487,17 @@ function t_log4sh_set_config() {
 #        channel.cmd.cmdline
 #   value: value of the key
 #
-#   Please refer to the function "t_log4sh_set_config" for details.
+# Please refer to the function "t_log4sh_set_config" for details.
 #
-#   Example content of configuration file:
-#       log_format=%d %l %f:%L %m
-#       date_format=%Y-%m-%d %H:%M:%S
-#       date_time_zone=UTC-2
-#       trace_dump_resolve_abs_path=true
-#       threshold_min_level=1
-#       threshold_max_level=6
-#       channels=stderr,file
-#       channel.file.path=/var/log/app.log
+# Example content of configuration file:
+#   log_format=%d %l %f:%L %m
+#   date_format=%Y-%m-%d %H:%M:%S
+#   date_time_zone=UTC-2
+#   trace_dump_resolve_abs_path=true
+#   threshold_min_level=1
+#   threshold_max_level=6
+#   channels=stderr,file
+#   channel.file.path=/var/log/app.log
 #
 function t_log4sh_init_from_cfg_file() {
     local cfg_file_path="$1"
