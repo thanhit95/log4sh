@@ -381,7 +381,7 @@ function t_log4sh_print_configs() {
 #   key         The key of the configuration value.
 #   val         The value of the configuration value.
 #   line        The line of the configuration file.
-#               When key and val is empty, use line from this as key and value.
+#               When key and val are both empty, use line from this as key and value.
 #               Line syntax: <key>=<value>
 # Example:
 #   t_log4sh_set_config "log_format" "%d %l %f:%L %m"
@@ -411,7 +411,7 @@ function t_log4sh_print_configs() {
 function t_log4sh_set_config() {
     local key="$1"
     local val="$2"
-    # when key($1) and val($2) is empty, use line from $3
+    # when key($1) and val($2) are both empty, use line from $3
     # line syntax: <key>=<value>
     local line="$3"
 
