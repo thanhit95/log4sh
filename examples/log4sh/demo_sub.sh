@@ -1,15 +1,19 @@
-TEST_SUB_FILE_PATH=
+# This file is not intended to be executed directly
+# It is included by other demo scripts
+
+
+DEMO_SUB_FILE_PATH=
 if [[ -n "$BASH_VERSION" ]]; then
-    TEST_SUB_FILE_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
+    DEMO_SUB_FILE_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
 elif [[ -n "$ZSH_VERSION" ]]; then
-    TEST_SUB_FILE_PATH="${0:a}"
+    DEMO_SUB_FILE_PATH="${0:a}"
 else
-    TEST_SUB_FILE_PATH="$(readlink -f "$0")"
+    DEMO_SUB_FILE_PATH="$(readlink -f "$0")"
 fi
-TEST_SUB_BASE_DIR="${TEST_SUB_FILE_PATH%/*}"
+DEMO_SUB_BASE_DIR="${DEMO_SUB_FILE_PATH%/*}"
 
 
-. "$TEST_SUB_BASE_DIR/../../t_log4sh.sh"
+. "$DEMO_SUB_BASE_DIR/../../t_log4sh.sh"
 
 
 function do_bar() {
