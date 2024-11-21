@@ -106,17 +106,36 @@ _T_LOG4SH_SPACE_ARR=(
 )
 _T_LOG4SH_SPACE_ARR_SIZE="${#_T_LOG4SH_SPACE_ARR[@]}"
 
+_T_LOG4SH_LV_STR_ARR=("LOG4SH" "TRACE" "DEBUG" "INFO " "WARN " "ERROR" "FATAL")
+_T_LOG4SH_INTERNAL_LV=0
+_T_LOG4SH_TRACE_LV=1
+_T_LOG4SH_DEBUG_LV=2
+_T_LOG4SH_INFO_LV=3
+_T_LOG4SH_WARN_LV=4
+_T_LOG4SH_ERROR_LV=5
+_T_LOG4SH_FATAL_LV=6
+
+_T_LOG4SH_STDOUT_CHN=stdout
+_T_LOG4SH_STDERR_CHN=stderr
+_T_LOG4SH_FILE_CHN=file
+_T_LOG4SH_CMD_CHN=cmd
+_T_LOG4SH_CHN_SET="$_T_LOG4SH_STDOUT_CHN|$_T_LOG4SH_STDERR_CHN|$_T_LOG4SH_FILE_CHN|$_T_LOG4SH_CMD_CHN"
+
 
 ################################################################################
 # CONFIGURATIONS
 ################################################################################
 
 
-_T_LOG4SH_CFG_OUT_FILE_PATH=
+_T_LOG4SH_CFG_CHANNELS="$_T_LOG4SH_STDOUT_CHN"
+_T_LOG4SH_CFG_CHN_FILE_PATH=
+_T_LOG4SH_CFG_CHN_CMD_CMDLINE=
 _T_LOG4SH_CFG_LOG_FORMAT=
 _T_LOG4SH_CFG_DATE_FORMAT=
 _T_LOG4SH_CFG_DATE_TIME_ZONE=
 _T_LOG4SH_CFG_TRACE_DUMP_RESOLVE_ABS_PATH=
+_T_LOG4SH_CFG_THRESHOLD_MIN_LV=0
+_T_LOG4SH_CFG_THRESHOLD_MAX_LV=7
 
 
 ################################################################################
@@ -181,7 +200,7 @@ function _t_log4sh_get_date_by_format() {
 
 # Prints a log message with the specified format.
 #
-# The format string can contain the following place holders:
+# The format string can contain the following placeholders:
 #   %d: date
 #   %l: level
 #   %f: file name
@@ -190,18 +209,18 @@ function _t_log4sh_get_date_by_format() {
 #   %m: message
 #
 # The function takes 7 arguments:
-#   fmt      The format string
-#   dt       The date string
-#   level    The log level string
-#   file_name    The file name string
-#   line_no   The line number string
-#   func_name The function name string
-#   msg      The message string
+#   fmt         The format string
+#   dt          The date string
+#   level_str   The log level string
+#   file_name   The file name string
+#   line_no     The line number string
+#   func_name   The function name string
+#   msg         The message string
 #
 function _t_log4sh_print_by_format() {
     local fmt="$1"
     local dt="$2"
-    local level="$3"
+    local level_str="$3"
     local file_name="$4"
     local line_no="$5"
     local func_name="$6"
@@ -222,7 +241,7 @@ function _t_log4sh_print_by_format() {
         if [[ "$chr" == "d" ]]; then
             res+="$dt"
         elif [[ "$chr" == "l" ]]; then
-            res+="$level"
+            res+="$level_str"
         elif [[ "$chr" == "f" ]]; then
             res+="$file_name"
         elif [[ "$chr" == "L" ]]; then
@@ -244,11 +263,11 @@ function _t_log4sh_print_by_format() {
 # Arguments:
 #   dump_trace      If true, dump the call stack. The default is false.
 #   trace_skip_cnt  The number of stack frames to skip. The default is 0.
-#   level           The log level. The default is 'INFO'.
+#   level           Level (int value)
 #   msg             The log message.
 #
 # Examples:
-#   _t_log4sh_log_base true 0 "INFO" "Hello, world!"
+#   _t_log4sh_log_base true 0 3 "Hello, world!"
 #
 function _t_log4sh_log_base() {
     local dump_trace="$1"
@@ -258,6 +277,11 @@ function _t_log4sh_log_base() {
     local dt
     local file_name line_no func_name
     local log_msg
+
+    if [[ $level -ne _T_LOG4SH_INTERNAL_LV ]]; then
+        [[ $level -lt _T_LOG4SH_CFG_THRESHOLD_MIN_LV || $level -gt _T_LOG4SH_CFG_THRESHOLD_MAX_LV ]] && return
+    fi
+    local level_str="${_T_LOG4SH_LV_STR_ARR[@]:$level:1}"
 
     if [[ -n "$BASH_VERSION" ]]; then
         file_name="${BASH_SOURCE[$trace_skip_cnt+1]##*/}"
@@ -278,11 +302,11 @@ function _t_log4sh_log_base() {
     fi
 
     if [[ -z "$_T_LOG4SH_CFG_LOG_FORMAT" ]]; then
-        log_msg="$dt [$level] $file_name:$line_no: $func_name: $msg"
-        # log_msg="$dt [$level] $func_name: $msg"
+        log_msg="$dt [$level_str] $file_name:$line_no: $func_name: $msg"
+        # log_msg="$dt [$level_str] $func_name: $msg"
     else
         log_msg="$(_t_log4sh_print_by_format "$_T_LOG4SH_CFG_LOG_FORMAT" \
-                "$dt" "$level" "$file_name" "$line_no" "$func_name" "$msg")"
+                "$dt" "$level_str" "$file_name" "$line_no" "$func_name" "$msg")"
     fi
 
     # (( ++trace_skip_cnt ))
@@ -292,11 +316,35 @@ function _t_log4sh_log_base() {
         log_msg="$log_msg"$'\n'"$stack_trace_str"
     fi
 
-    if [[ -z "$_T_LOG4SH_CFG_OUT_FILE_PATH" ]]; then
-        echo "$log_msg"
-    else
-        echo "$log_msg" >> "$_T_LOG4SH_CFG_OUT_FILE_PATH"
+    if [[ $level -eq _T_LOG4SH_INTERNAL_LV ]]; then
+        echo "$log_msg" >&2
+        return
     fi
+
+    for channel in "${_T_LOG4SH_CFG_CHANNELS[@]}"; do
+        case "$channel" in
+            "$_T_LOG4SH_STDOUT_CHN")
+                echo "$log_msg"
+                ;;
+            "$_T_LOG4SH_STDERR_CHN")
+                echo "$log_msg" >&2
+                ;;
+            "$_T_LOG4SH_FILE_CHN")
+                echo "$log_msg" >> "$_T_LOG4SH_CFG_CHN_FILE_PATH"
+                ;;
+            "$_T_LOG4SH_CMD_CHN")
+                echo "$log_msg" | $_T_LOG4SH_CFG_CHN_CMD_CMDLINE
+                ;;
+            *)
+                ;;
+        esac
+    done
+
+    # if [[ -z "$_T_LOG4SH_CFG_CHN_FILE_PATH" ]]; then
+    #     echo "$log_msg"
+    # else
+    #     echo "$log_msg" >> "$_T_LOG4SH_CFG_CHN_FILE_PATH"
+    # fi
 }
 
 
@@ -305,82 +353,153 @@ function _t_log4sh_log_base() {
 ################################################################################
 
 
+function t_log4sh_print_configs() {
+    echo "log_format: $_T_LOG4SH_CFG_LOG_FORMAT"
+    echo "date_format: $_T_LOG4SH_CFG_DATE_FORMAT"
+    echo "date_time_zone: $_T_LOG4SH_CFG_DATE_TIME_ZONE"
+    echo "trace_dump_resolve_abs_path: $_T_LOG4SH_CFG_TRACE_DUMP_RESOLVE_ABS_PATH"
+    echo "threshold_min_level: $_T_LOG4SH_CFG_THRESHOLD_MIN_LV"
+    echo "threshold_max_level: $_T_LOG4SH_CFG_THRESHOLD_MAX_LV"
+    echo "channels: ${_T_LOG4SH_CFG_CHANNELS[@]}"
+    echo "channel.file.path: $_T_LOG4SH_CFG_CHN_FILE_PATH"
+    echo "channel.cmd.cmdline: $_T_LOG4SH_CFG_CHN_CMD_CMDLINE"
+}
+
+
+function t_log4sh_set_config() {
+    local key="$1"
+    local val="$2"
+    # when key($1) and val($2) is empty, use line from $3
+    # line syntax: <key>=<value>
+    local line="$3"
+
+    local arr arr2
+
+    if [[ -z "$key" && -z "$val" ]]; then
+        [[ -z "$line" ]] && return
+        key="${line%=*}"
+        val="${line#*=}"
+    fi
+
+    case "$key" in
+        "log_format")
+            _T_LOG4SH_CFG_LOG_FORMAT="$val"
+            ;;
+        "date_format")
+            _T_LOG4SH_CFG_DATE_FORMAT="$val"
+            ;;
+        "date_time_zone")
+            _T_LOG4SH_CFG_DATE_TIME_ZONE="$val"
+            ;;
+        "trace_dump_resolve_abs_path")
+            _T_LOG4SH_CFG_TRACE_DUMP_RESOLVE_ABS_PATH="$val"
+            ;;
+        "threshold_min_level")
+            _T_LOG4SH_CFG_THRESHOLD_MIN_LV="$val"
+            ;;
+        "threshold_max_level")
+            _T_LOG4SH_CFG_THRESHOLD_MAX_LV="$val"
+            ;;
+        "channels")
+            if [[ -n "$BASH_VERSION" ]]; then
+                IFS=',' read -a arr <<< "$val"
+            elif [[ -n "$ZSH_VERSION" ]]; then
+                IFS=',' read -A arr <<< "$val"
+            else
+                :
+            fi
+            arr2=()
+            for channel in "${arr[@]}"; do
+                if [[ ! "$channel" =~ ^($_T_LOG4SH_CHN_SET)$ ]]; then
+                    _t_log4sh_log_base true 0 "$_T_LOG4SH_INTERNAL_LV" \
+                            "Illegal channel value: $channel"
+                fi
+                arr2+=("$channel")
+            done
+            _T_LOG4SH_CFG_CHANNELS=("${arr2[@]}")
+            ;;
+        "channel.file.path")
+            _T_LOG4SH_CFG_CHN_FILE_PATH="$val"
+            ;;
+        "channel.cmd.cmdline")
+            _T_LOG4SH_CFG_CHN_CMD_CMDLINE="$val"
+            ;;
+        *)
+            ;;
+    esac
+}
+
+
 function t_log4sh_init_from_cfg_file() {
     local cfg_file_path="$1"
 
     if [[ ! -f "$cfg_file_path" ]]; then
-        # Circle dependency? I think it is okay
-        t_logerr_st "Configuration file not found: $cfg_file_path" >&2
+        _t_log4sh_log_base true 0 "$_T_LOG4SH_INTERNAL_LV" \
+                "Configuration file not found: $cfg_file_path"
         # echo "log4sh: Configuration file not found: $cfg_file_path" >&2
         return 1
     fi
-
-    _T_LOG4SH_CFG_OUT_FILE_PATH=
-    _T_LOG4SH_CFG_LOG_FORMAT=
-    _T_LOG4SH_CFG_DATE_FORMAT=
-    _T_LOG4SH_CFG_DATE_TIME_ZONE=
-    _T_LOG4SH_CFG_TRACE_DUMP_RESOLVE_ABS_PATH=
 
     while IFS= read -r line || [[ -n "$line" ]]; do
         if [[ "$line" == "#"* ]]; then
             continue
         fi
-
-        if [[ "$line" == "file_path="* ]]; then
-            _T_LOG4SH_CFG_OUT_FILE_PATH="${line#*=}"
-        elif [[ "$line" == "log_format="* ]]; then
-            _T_LOG4SH_CFG_LOG_FORMAT="${line#*=}"
-        elif [[ "$line" == "date_format="* ]]; then
-            _T_LOG4SH_CFG_DATE_FORMAT="${line#*=}"
-        elif [[ "$line" == "date_time_zone="* ]]; then
-            _T_LOG4SH_CFG_DATE_TIME_ZONE="${line#*=}"
-        elif [[ "$line" == "trace_dump_resolve_abs_path="* ]]; then
-            _T_LOG4SH_CFG_TRACE_DUMP_RESOLVE_ABS_PATH="${line#*=}"
-        fi
+        t_log4sh_set_config "" "" "$line"
     done < "$cfg_file_path"
 
-    # echo "file_path: $_T_LOG4SH_CFG_OUT_FILE_PATH"
-    # echo "log_format: $_T_LOG4SH_CFG_LOG_FORMAT"
-    # echo "date_format: $_T_LOG4SH_CFG_DATE_FORMAT"
-    # echo "date_time_zone: $_T_LOG4SH_CFG_DATE_TIME_ZONE"
-    # echo "trace_dump_resolve_abs_path: $_T_LOG4SH_CFG_TRACE_DUMP_RESOLVE_ABS_PATH"
-
+    # t_log4sh_print_configs
     return 0
 }
 
 
+function t_logtrace() {
+    local msg="$1"
+    _t_log4sh_log_base false 1 "$_T_LOG4SH_TRACE_LV" "$msg"
+}
 function t_logdbg() {
     local msg="$1"
-    _t_log4sh_log_base false 1 "DEBUG" "$msg"
+    _t_log4sh_log_base false 1 "$_T_LOG4SH_DEBUG_LV" "$msg"
 }
 function t_loginfo() {
     local msg="$1"
-    _t_log4sh_log_base false 1 "INFO " "$msg"
+    _t_log4sh_log_base false 1 "$_T_LOG4SH_INFO_LV" "$msg"
 }
 function t_logwarn() {
     local msg="$1"
-    _t_log4sh_log_base false 1 "WARN " "$msg"
+    _t_log4sh_log_base false 1 "$_T_LOG4SH_WARN_LV" "$msg"
 }
 function t_logerr() {
     local msg="$1"
-    _t_log4sh_log_base false 1 "ERROR" "$msg"
+    _t_log4sh_log_base false 1 "$_T_LOG4SH_ERROR_LV" "$msg"
+}
+function t_logfatal() {
+    local msg="$1"
+    _t_log4sh_log_base false 1 "$_T_LOG4SH_FATAL_LV" "$msg"
 }
 
 
+function t_logtrac_st() {
+    local msg="$1"
+    _t_log4sh_log_base true 1 "$_T_LOG4SH_TRACE_LV" "$msg"
+}
 function t_logdbg_st() {
     local msg="$1"
-    _t_log4sh_log_base true 1 "DEBUG" "$msg"
+    _t_log4sh_log_base true 1 "$_T_LOG4SH_DEBUG_LV" "$msg"
 }
 function t_loginfo_st() {
     local msg="$1"
-    _t_log4sh_log_base true 1 "INFO " "$msg"
+    _t_log4sh_log_base true 1 "$_T_LOG4SH_INFO_LV" "$msg"
 }
 function t_logwarn_st() {
     local msg="$1"
-    _t_log4sh_log_base true 1 "WARN " "$msg"
+    _t_log4sh_log_base true 1 "$_T_LOG4SH_WARN_LV" "$msg"
 }
 function t_logerr_st() {
     local msg="$1"
-    _t_log4sh_log_base true 1 "ERROR" "$msg"
+    _t_log4sh_log_base true 1 "$_T_LOG4SH_ERROR_LV" "$msg"
+}
+function t_logfatal_st() {
+    local msg="$1"
+    _t_log4sh_log_base true 1 "$_T_LOG4SH_FATAL_LV" "$msg"
 }
 

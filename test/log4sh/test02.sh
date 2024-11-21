@@ -22,6 +22,7 @@ function do_sth() {
 
 #t_log4sh_init_from_cfg_file "not_existed_file.ini"
 t_log4sh_init_from_cfg_file "$TEST02_BASE_DIR/test02_config.ini"
+t_log4sh_print_configs
 echo
 
 

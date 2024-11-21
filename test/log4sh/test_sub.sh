@@ -13,11 +13,14 @@ TEST_SUB_BASE_DIR="${TEST_SUB_FILE_PATH%/*}"
 
 
 function do_bar() {
-    t_logdbg "this is a msg with debug level"
-    t_loginfo "this is a msg with info level"
-    t_logwarn "this is a msg with warn level"
-    t_logerr "this is a msg with err level"
-    t_logwarn_st "something happened unexpectedly"
+    local a=(9 8 7)
+    t_logtrace "msg with trace level"
+    t_logdbg "msg with debug level"
+    t_loginfo "msg with info level"
+    t_logwarn "msg with warn level, plus array: ${a[*]}"
+    t_logerr "msg with err level"
+    t_logfatal "msg with fatal level, plus special chars: [] %d %l %F %f %L %m"
+    t_logwarn_st "illegal string format [] %d %l"
 }
 
 
