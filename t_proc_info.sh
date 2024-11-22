@@ -3,6 +3,23 @@
 
 ################################################################################
 #
+# FILE NAME
+#   t_proc_info.sh
+#
+# VERSION
+#   1.0
+#
+# RELEASE DATE
+#   2024-11-22
+#
+# AUTHOR
+#   Thanh Nguyen (thanh.it1995@gmail.com)
+#
+# LICENSE
+#   BSD-3-Clause license
+#
+#
+#
 # DESCRIPTION
 #   This tool provides brief info of a process by using existed tools
 #   (top, lsof...) and displays results in a visual, organized manner.
