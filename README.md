@@ -17,23 +17,17 @@ Output example:
 
 ```shell
 # Calling the API fuctions:
-#   t_logdbg "this is a msg with debug level"
-#   t_loginfo "this is a msg with info level"
-#   t_logwarn "this is a msg with warn level"
-#   t_logerr "this is a msg with err level"
-#   t_logwarn_st "something happened unexpectedly"
+#   t_logdbg "msg with debug level"
+#   t_loginfo "msg with info level"
+#   t_logwarn_st "illegal argument value"
 #
 # Output:
-2024-11-20 22:11:13.486 [DEBUG] test_sub.sh:14: do_bar: this is a msg with debug level
-2024-11-20 22:11:13.489 [INFO ] test_sub.sh:15: do_bar: this is a msg with info level
-2024-11-20 22:11:13.492 [WARN ] test_sub.sh:16: do_bar: this is a msg with warn level
-2024-11-20 22:11:13.494 [ERROR] test_sub.sh:17: do_bar: this is a msg with err level
-2024-11-20 22:11:13.497 [WARN ] test_sub.sh:18: do_bar: something happened unexpectedly
-    at do_bar (/home/thanh/linux_shell_kit/test/log4sh/test_sub.sh:18)
-    at do_foo (/home/thanh/linux_shell_kit/test/log4sh/test_sub.sh:23)
-    at do_sth (test/log4sh/test01.sh:17)
-    at main (test/log4sh/test01.sh:21)
-Done testing
+2024-11-22 20:07:18.489 [DEBUG] demo01a.sh:18: check_data: msg with debug level
+2024-11-22 20:07:18.490 [INFO ] demo01a.sh:19: check_data: msg with info level
+2024-11-22 20:07:18.492 [WARN ] demo01a.sh:20: check_data: illegal argument value
+    at check_data (./examples/log4sh/demo01a.sh:20)
+    at send_request (./examples/log4sh/demo01a.sh:28)
+    at main (./examples/log4sh/demo01a.sh:33)
 ```
 
 ### t_util_lib.sh
