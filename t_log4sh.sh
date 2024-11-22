@@ -630,7 +630,7 @@ function t_logfatal() {
 }
 
 
-function t_logtrac_st() {
+function t_logtrace_st() {
     local msg="$1"
     _t_log4sh_log_base true 1 "$_T_LOG4SH_TRACE_LV" "$msg"
 }
