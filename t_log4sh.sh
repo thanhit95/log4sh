@@ -10,7 +10,7 @@
 #   1.0
 #
 # RELEASE DATE
-#   ?
+#   2024-11-22
 #
 # AUTHOR
 #   Thanh Nguyen (thanh.it1995@gmail.com)
