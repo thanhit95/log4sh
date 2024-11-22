@@ -6,6 +6,12 @@
 # FILE NAME
 #   t_log4sh.sh
 #
+# VERSION
+#   1.0
+#
+# RELEASE DATE
+#   ?
+#
 # AUTHOR
 #   Thanh Nguyen (thanh.it1995@gmail.com)
 #
@@ -175,13 +181,24 @@ function _t_log4sh_dump_trace() {
     [[ "$prefix_sp_cnt" -lt 0 ]] && prefix_sp_cnt=0
 
     if [[ -n "$BASH_VERSION" ]]; then
-        while read -r line_no func_name file_name < <(caller $i); do
-            if [[ "$i" -ge "$skip_cnt" ]]; then
-                [[ "$_T_LOG4SH_CFG_TRACE_DUMP_RESOLVE_ABS_PATH" == "true" ]] && file_name="$(readlink -f "$file_name")"
-                echo "${_T_LOG4SH_SPACE_ARR[@]:$prefix_sp_cnt:1}at $func_name ($file_name:$line_no)"
-            fi
-            ((++i))
+        local n="${#FUNCNAME[@]}"
+        for ((i=1; i<n; ++i)); do
+            [[ "$i" -le "$skip_cnt" ]] && continue
+            file_name="${BASH_SOURCE[$i]}"
+            line_no="${BASH_LINENO[$i-1]}"
+            func_name="${FUNCNAME[$i]}"
+            [[ "$_T_LOG4SH_CFG_TRACE_DUMP_RESOLVE_ABS_PATH" == "true" ]] && file_name="$(readlink -f "$file_name")"
+            [[ -z "$func_name" && "$i" -eq "$n" ]] && func_name=main
+            echo "${_T_LOG4SH_SPACE_ARR[@]:$prefix_sp_cnt:1}at $func_name ($file_name:$line_no)"
         done
+        # while read -r line_no func_name file_name < <(caller $i); do
+        #     # echo ">>>>>>> LOOP $i"
+        #     if [[ "$i" -ge "$skip_cnt" ]]; then
+        #         [[ "$_T_LOG4SH_CFG_TRACE_DUMP_RESOLVE_ABS_PATH" == "true" ]] && file_name="$(readlink -f "$file_name")"
+        #         echo "${_T_LOG4SH_SPACE_ARR[@]:$prefix_sp_cnt:1}at $func_name ($file_name:$line_no)"
+        #     fi
+        #     ((++i))
+        # done
     elif [[ -n "$ZSH_VERSION" ]]; then
         local n="${#funcfiletrace[@]}"
         for ((i=1; i<=n; ++i)); do
@@ -357,6 +374,19 @@ function _t_log4sh_log_base() {
 }
 
 
+# function _t_log4sh_trap_last_err_cmd() {
+#     local level_str="$1"
+#     if [[ -n "$BASH_VERSION" ]]; then
+#         trap "t_log_st ""$level_str"' "Error on executing cmd: ${BASH_COMMAND}"' ERR
+#     elif [[ -n "$ZSH_VERSION" ]]; then
+#         # I could not find a solution
+#         trap "t_log_st ""$level_str"' "Error on executing a cmd"' ERR
+#     else
+#         :
+#     fi
+# }
+
+
 ################################################################################
 # API
 ################################################################################
@@ -519,6 +549,58 @@ function t_log4sh_init_from_cfg_file() {
 
     # t_log4sh_print_configs
     return 0
+}
+
+
+function t_log() {
+    local level_str="$1"
+    local msg="$2"
+
+    case "$level_str" in
+        "LOG4SH")
+            _t_log4sh_log_base false 1 "$_T_LOG4SH_INTERNAL_LV" "$msg" ;;
+        "TRACE")
+            _t_log4sh_log_base false 1 "$_T_LOG4SH_TRACE_LV" "$msg" ;;
+        "DBG" | "DEBUG")
+            _t_log4sh_log_base false 1 "$_T_LOG4SH_DEBUG_LV" "$msg" ;;
+        "INFO")
+            _t_log4sh_log_base false 1 "$_T_LOG4SH_INFO_LV" "$msg" ;;
+        "WARN")
+            _t_log4sh_log_base false 1 "$_T_LOG4SH_WARN_LV" "$msg" ;;
+        "ERR" | "ERROR")
+            _t_log4sh_log_base false 1 "$_T_LOG4SH_ERROR_LV" "$msg" ;;
+        "FATAL")
+            _t_log4sh_log_base false 1 "$_T_LOG4SH_FATAL_LV" "$msg" ;;
+        *)
+            _t_log4sh_log_base true 0 "$_T_LOG4SH_INTERNAL_LV" \
+                    "Illegal level_str: $level_str; Note: msg is $msg" ;;
+    esac
+}
+
+
+function t_log_st() {
+    local level_str="$1"
+    local msg="$2"
+
+    case "$level_str" in
+        "LOG4SH")
+            _t_log4sh_log_base true 1 "$_T_LOG4SH_INTERNAL_LV" "$msg" ;;
+        "TRACE")
+            _t_log4sh_log_base true 1 "$_T_LOG4SH_TRACE_LV" "$msg" ;;
+        "DBG" | "DEBUG")
+            _t_log4sh_log_base true 1 "$_T_LOG4SH_DEBUG_LV" "$msg" ;;
+        "INFO")
+            _t_log4sh_log_base true 1 "$_T_LOG4SH_INFO_LV" "$msg" ;;
+        "WARN")
+            _t_log4sh_log_base true 1 "$_T_LOG4SH_WARN_LV" "$msg" ;;
+        "ERR" | "ERROR")
+            _t_log4sh_log_base true 1 "$_T_LOG4SH_ERROR_LV" "$msg" ;;
+        "FATAL")
+            _t_log4sh_log_base true 1 "$_T_LOG4SH_FATAL_LV" "$msg" ;;
+        *)
+            _t_log4sh_log_base true 0 "$_T_LOG4SH_INTERNAL_LV" \
+                    "Illegal level_str: $level_str; Note: msg is $msg" ;;
+    esac
 }
 
 
