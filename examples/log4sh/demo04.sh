@@ -35,7 +35,7 @@ function send_request() {
 }
 
 
-echo "BEGIN DEMO04"
+echo "BEGIN DEMO 04"
 
 # We will log to both stderr and a file
 t_log4sh_set_config "channels" "stderr,file"
@@ -47,12 +47,12 @@ t_log4sh_set_config "channel.file.path" "./demo04.log"
 echo -e "\n---- BEGIN TESTING ----"
 send_request
 
-echo -e "\nDONE DEMO04"
+echo -e "\nDONE DEMO 04"
 
 
 # Expected output in stderr:
 #
-# BEGIN DEMO04
+# BEGIN DEMO 04
 #
 # ---- BEGIN TESTING ----
 # 2024-11-22 00:52:55.910 [INFO ] demo04.sh:25: check_data: msg with info level
@@ -63,7 +63,7 @@ echo -e "\nDONE DEMO04"
 #     at send_request (./examples/log4sh/demo04.sh:34)
 #     at main (./examples/log4sh/demo04.sh:48)
 #
-# DONE DEMO04
+# DONE DEMO 04
 
 
 # Expected output in file demo04.log:

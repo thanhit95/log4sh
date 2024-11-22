@@ -25,14 +25,14 @@ function do_sth() {
 }
 
 
-echo -e "BEGIN DEMO05\n"
+echo -e "BEGIN DEMO 05\n"
 do_sth
-echo -e "\nDONE DEMO05"
+echo -e "\nDONE DEMO 05"
 
 
 # Expected output:
 #
-# BEGIN DEMO05
+# BEGIN DEMO 05
 #
 # 2024-11-22 00:54:25.198 [TRACE] demo_sub.sh:21: do_bar: msg with trace level
 # 2024-11-22 00:54:25.201 [DEBUG] demo_sub.sh:22: do_bar: msg with debug level
@@ -46,5 +46,5 @@ echo -e "\nDONE DEMO05"
 #     at do_sth (./examples/log4sh/demo05.sh:24)
 #     at main (./examples/log4sh/demo05.sh:29)
 #
-# DONE DEMO05
+# DONE DEMO 05
 

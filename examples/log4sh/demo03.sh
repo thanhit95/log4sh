@@ -35,7 +35,7 @@ function send_request() {
 }
 
 
-echo "BEGIN DEMO03"
+echo "BEGIN DEMO 03"
 
 # echo -e "\n---- CURRENT LOG4SH CONFIGS ----"
 # t_log4sh_print_configs
@@ -51,12 +51,12 @@ t_log4sh_set_config "threshold_min_level" "4"
 echo -e "\n---- BEGIN TESTING WITH UPDATED LOG4SH CONFIGS ----"
 send_request
 
-echo -e "\nDONE DEMO03"
+echo -e "\nDONE DEMO 03"
 
 
 # Expected output:
 #
-# BEGIN DEMO03
+# BEGIN DEMO 03
 #
 # ---- BEGIN TESTING WITH CURRENT LOG4SH CONFIGS ----
 # 2024-11-22 00:52:24.628 [INFO ] demo03.sh:25: check_data: msg with info level
@@ -75,5 +75,5 @@ echo -e "\nDONE DEMO03"
 #     at send_request (./examples/log4sh/demo03.sh:34)
 #     at main (./examples/log4sh/demo03.sh:52)
 #
-# DONE DEMO03
+# DONE DEMO 03
 

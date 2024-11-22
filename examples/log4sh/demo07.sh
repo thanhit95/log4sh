@@ -39,18 +39,18 @@ function send_request() {
 }
 
 
-echo -e "BEGIN DEMO07\n"
+echo -e "BEGIN DEMO 07\n"
 
 t_log4sh_init_from_cfg_file "$CUR_BASE_DIR/demo07.config.ini"
 
 send_request
 
-echo -e "\nDONE DEMO07"
+echo -e "\nDONE DEMO 07"
 
 
-# Expected output in stdout:
+# Expected output:
 #
-# BEGIN DEMO07
+# BEGIN DEMO 07
 #
 # 2024-11-22 00:59:16.280 [INFO ] demo07.sh:29: check_data: msg with info level
 # 2024-11-22 00:59:16.287 [WARN ] demo07.sh:30: check_data: msg with warn level, plus array: 9 8 7
@@ -60,7 +60,7 @@ echo -e "\nDONE DEMO07"
 #     at send_request (./examples/log4sh/demo07.sh:38)
 #     at main (./examples/log4sh/demo07.sh:46)
 #
-# DONE DEMO07
+# DONE DEMO 07
 
 
 # Expected output in listener server:

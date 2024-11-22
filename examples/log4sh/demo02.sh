@@ -38,7 +38,7 @@ function send_request() {
 }
 
 
-echo "BEGIN DEMO02"
+echo "BEGIN DEMO 02"
 
 echo -e "\n---- CURRENT LOG4SH CONFIGS ----"
 # Note: Empty config means using default value
@@ -47,12 +47,12 @@ t_log4sh_print_configs
 echo -e "\n---- BEGIN TESTING ----"
 send_request
 
-echo -e "\nDONE DEMO02"
+echo -e "\nDONE DEMO 02"
 
 
 # Expected output:
 #
-# BEGIN DEMO02
+# BEGIN DEMO 02
 #
 # ---- CURRENT LOG4SH CONFIGS ----
 # log_format:
@@ -74,5 +74,5 @@ echo -e "\nDONE DEMO02"
 #     at send_request (./examples/log4sh/demo02.sh:37)
 #     at main (./examples/log4sh/demo02.sh:47)
 #
-# DONE DEMO02
+# DONE DEMO 02
 
