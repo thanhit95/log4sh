@@ -16,7 +16,7 @@
 #   Thanh Nguyen (thanh.it1995@gmail.com)
 #
 # LICENSE
-#    BSD-3-Clause license
+#   BSD-3-Clause license
 #
 #
 #
