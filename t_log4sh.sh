@@ -42,6 +42,8 @@
 #   Using the API:
 #       t_log{level} <msg>
 #       t_log{level}_st <msg>
+#       t_log <level> <msg>
+#       t_log_st <level> <msg>
 #
 #       The postfix "_st" indicates that the function will dump the call stack.
 #       Please view the section "API" for details.
@@ -54,6 +56,10 @@
 #           t_logwarn_st "Something happened unexpectedly"
 #           t_logerr_st "Got error status in execution" >&2
 #           t_logerr_st "Argument is invalid" >err.log
+#
+#           t_log DEBUG "Hello, debug"
+#           t_log ERROR "Hello, error"
+#           t_log_st WARN "Something happened unexpectedly"
 #
 #
 #
@@ -144,10 +150,10 @@ _T_LOG4SH_CHN_SET="$_T_LOG4SH_STDOUT_CHN|$_T_LOG4SH_STDERR_CHN|$_T_LOG4SH_FILE_C
 _T_LOG4SH_CFG_CHANNELS="$_T_LOG4SH_STDOUT_CHN"
 _T_LOG4SH_CFG_CHN_FILE_PATH=
 _T_LOG4SH_CFG_CHN_CMD_CMDLINE=
-_T_LOG4SH_CFG_LOG_FORMAT=
+_T_LOG4SH_CFG_MSG_ITEM_FORMAT=
 _T_LOG4SH_CFG_DATE_FORMAT=
 _T_LOG4SH_CFG_DATE_TIME_ZONE=
-_T_LOG4SH_CFG_TRACE_DUMP_RESOLVE_ABS_PATH=
+_T_LOG4SH_CFG_TRACE_DUMP_ABS_PATH=
 _T_LOG4SH_CFG_THRESHOLD_MIN_LV=0
 _T_LOG4SH_CFG_THRESHOLD_MAX_LV=7
 
@@ -187,14 +193,14 @@ function _t_log4sh_dump_trace() {
             file_name="${BASH_SOURCE[$i]}"
             line_no="${BASH_LINENO[$i-1]}"
             func_name="${FUNCNAME[$i]}"
-            [[ "$_T_LOG4SH_CFG_TRACE_DUMP_RESOLVE_ABS_PATH" == "true" ]] && file_name="$(readlink -f "$file_name")"
+            [[ "$_T_LOG4SH_CFG_TRACE_DUMP_ABS_PATH" == "true" ]] && file_name="$(readlink -f "$file_name")"
             [[ -z "$func_name" && "$i" -eq "$n" ]] && func_name=main
             echo "${_T_LOG4SH_SPACE_ARR[@]:$prefix_sp_cnt:1}at $func_name ($file_name:$line_no)"
         done
         # while read -r line_no func_name file_name < <(caller $i); do
         #     # echo ">>>>>>> LOOP $i"
         #     if [[ "$i" -ge "$skip_cnt" ]]; then
-        #         [[ "$_T_LOG4SH_CFG_TRACE_DUMP_RESOLVE_ABS_PATH" == "true" ]] && file_name="$(readlink -f "$file_name")"
+        #         [[ "$_T_LOG4SH_CFG_TRACE_DUMP_ABS_PATH" == "true" ]] && file_name="$(readlink -f "$file_name")"
         #         echo "${_T_LOG4SH_SPACE_ARR[@]:$prefix_sp_cnt:1}at $func_name ($file_name:$line_no)"
         #     fi
         #     ((++i))
@@ -206,7 +212,7 @@ function _t_log4sh_dump_trace() {
             file_name="${funcfiletrace[$i]%\:*}"
             line_no="${funcfiletrace[$i]#*\:}"
             func_name="${funcstack[$i+1]}"
-            [[ "$_T_LOG4SH_CFG_TRACE_DUMP_RESOLVE_ABS_PATH" == "true" ]] && file_name="$(readlink -f "$file_name")"
+            [[ "$_T_LOG4SH_CFG_TRACE_DUMP_ABS_PATH" == "true" ]] && file_name="$(readlink -f "$file_name")"
             [[ -z "$func_name" && "$i" -eq "$n" ]] && func_name=main
             echo "${_T_LOG4SH_SPACE_ARR[@]:$prefix_sp_cnt:1}at $func_name ($file_name:$line_no)"
         done
@@ -326,11 +332,11 @@ function _t_log4sh_log_base() {
         dt="$(_t_log4sh_get_date_by_format)"
     fi
 
-    if [[ -z "$_T_LOG4SH_CFG_LOG_FORMAT" ]]; then
+    if [[ -z "$_T_LOG4SH_CFG_MSG_ITEM_FORMAT" ]]; then
         log_msg="$dt [$level_str] $file_name:$line_no: $func_name: $msg"
         # log_msg="$dt [$level_str] $func_name: $msg"
     else
-        log_msg="$(_t_log4sh_print_by_format "$_T_LOG4SH_CFG_LOG_FORMAT" \
+        log_msg="$(_t_log4sh_print_by_format "$_T_LOG4SH_CFG_MSG_ITEM_FORMAT" \
                 "$dt" "$level_str" "$file_name" "$line_no" "$func_name" "$msg")"
     fi
 
@@ -393,12 +399,12 @@ function _t_log4sh_log_base() {
 
 
 function t_log4sh_print_configs() {
-    echo "log_format: $_T_LOG4SH_CFG_LOG_FORMAT"
-    echo "date_format: $_T_LOG4SH_CFG_DATE_FORMAT"
-    echo "date_time_zone: $_T_LOG4SH_CFG_DATE_TIME_ZONE"
-    echo "trace_dump_resolve_abs_path: $_T_LOG4SH_CFG_TRACE_DUMP_RESOLVE_ABS_PATH"
-    echo "threshold_min_level: $_T_LOG4SH_CFG_THRESHOLD_MIN_LV"
-    echo "threshold_max_level: $_T_LOG4SH_CFG_THRESHOLD_MAX_LV"
+    echo "msg_item.format: $_T_LOG4SH_CFG_MSG_ITEM_FORMAT"
+    echo "msg_item.date.format: $_T_LOG4SH_CFG_DATE_FORMAT"
+    echo "msg_item.date.time_zone: $_T_LOG4SH_CFG_DATE_TIME_ZONE"
+    echo "trace_dump.abs_path: $_T_LOG4SH_CFG_TRACE_DUMP_ABS_PATH"
+    echo "threshold.min_level: $_T_LOG4SH_CFG_THRESHOLD_MIN_LV"
+    echo "threshold.max_level: $_T_LOG4SH_CFG_THRESHOLD_MAX_LV"
     echo "channels: ${_T_LOG4SH_CFG_CHANNELS[@]}"
     echo "channel.file.path: $_T_LOG4SH_CFG_CHN_FILE_PATH"
     echo "channel.cmd.cmdline: $_T_LOG4SH_CFG_CHN_CMD_CMDLINE"
@@ -414,11 +420,11 @@ function t_log4sh_print_configs() {
 #               When key and val are both empty, use line from this as key and value.
 #               Line syntax: <key>=<value>
 # Example:
-#   t_log4sh_set_config "log_format" "%d %l %f:%L %m"
-#   t_log4sh_set_config "" "" "log_format=%d %l %f:%L %m"
+#   t_log4sh_set_config "msg_item.format" "%d %l %f:%L %m"
+#   t_log4sh_set_config "" "" "msg_item.format=%d %l %f:%L %m"
 #
 # Config keys:
-#   log_format: Log message format
+#   msg_item.format: Log message format
 #               Placeholders:
 #                   %d: date
 #                   %l: level
@@ -426,11 +432,11 @@ function t_log4sh_print_configs() {
 #                   %L: line number
 #                   %F: function name
 #                   %m: message
-#   date_format: Date format used in log message
-#   date_time_zone: Time zone used in date
-#   trace_dump_resolve_abs_path: Whether to convert relative path to absolute path
-#   threshold_min_level: Minimum log level (integer)
-#   threshold_max_level: Maximum log level (integer)
+#   msg_item.date.format: Date format used in log message
+#   msg_item.date.time_zone: Time zone used in date
+#   trace_dump.abs_path: Whether to convert relative path to absolute path
+#   threshold.min_level: Minimum log level (integer)
+#   threshold.max_level: Maximum log level (integer)
 #                        Note: Log levels: 1=TRACE, 2=DEBUG, 3=INFO,
 #                                          4=WARN, 5=ERROR, 6=FATAL
 #   channels: Comma-separated list of channels
@@ -454,22 +460,22 @@ function t_log4sh_set_config() {
     fi
 
     case "$key" in
-        "log_format")
-            _T_LOG4SH_CFG_LOG_FORMAT="$val"
+        "msg_item.format")
+            _T_LOG4SH_CFG_MSG_ITEM_FORMAT="$val"
             ;;
-        "date_format")
+        "msg_item.date.format")
             _T_LOG4SH_CFG_DATE_FORMAT="$val"
             ;;
-        "date_time_zone")
+        "msg_item.date.time_zone")
             _T_LOG4SH_CFG_DATE_TIME_ZONE="$val"
             ;;
-        "trace_dump_resolve_abs_path")
-            _T_LOG4SH_CFG_TRACE_DUMP_RESOLVE_ABS_PATH="$val"
+        "trace_dump.abs_path")
+            _T_LOG4SH_CFG_TRACE_DUMP_ABS_PATH="$val"
             ;;
-        "threshold_min_level")
+        "threshold.min_level")
             _T_LOG4SH_CFG_THRESHOLD_MIN_LV="$val"
             ;;
-        "threshold_max_level")
+        "threshold.max_level")
             _T_LOG4SH_CFG_THRESHOLD_MAX_LV="$val"
             ;;
         "channels")
@@ -513,20 +519,20 @@ function t_log4sh_set_config() {
 #   ...
 #   <key>=<value>
 #
-#   key: log_format, date_format, date_time_zone, trace_dump_resolve_abs_path,
-#        threshold_min_level, threshold_max_level, channels, channel.file.path,
+#   key: msg_item.format, msg_item.date.format, msg_item.date.time_zone, trace_dump.abs_path,
+#        threshold.min_level, threshold.max_level, channels, channel.file.path,
 #        channel.cmd.cmdline
 #   value: value of the key
 #
 # Please refer to the function "t_log4sh_set_config" for details.
 #
 # Example content of configuration file:
-#   log_format=%d %l %f:%L %m
-#   date_format=%Y-%m-%d %H:%M:%S
-#   date_time_zone=UTC-2
-#   trace_dump_resolve_abs_path=true
-#   threshold_min_level=1
-#   threshold_max_level=6
+#   msg_item.format=%d %l %f:%L %m
+#   msg_item.date.format=%Y-%m-%d %H:%M:%S
+#   msg_item.date.time_zone=UTC-2
+#   trace_dump.abs_path=true
+#   threshold.min_level=1
+#   threshold.max_level=6
 #   channels=stderr,file
 #   channel.file.path=/var/log/app.log
 #

@@ -42,9 +42,9 @@ echo "BEGIN DEMO 03"
 echo -e "\n---- BEGIN TESTING WITH CURRENT LOG4SH CONFIGS ----"
 send_request
 
-t_log4sh_set_config "log_format" "%d (( %l )) %f at line %L: %m"
-t_log4sh_set_config "date_format" "%A %H:%M:%S"
-t_log4sh_set_config "threshold_min_level" "4"
+t_log4sh_set_config "msg_item.format" "%d (( %l )) %f at line %L: %m"
+t_log4sh_set_config "msg_item.date.format" "%A %H:%M:%S"
+t_log4sh_set_config "threshold.min_level" "4"
 
 # echo -e "\n---- UPDATED LOG4SH CONFIGS ----"
 # t_log4sh_print_configs

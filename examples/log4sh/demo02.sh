@@ -56,11 +56,11 @@ echo -e "\nDONE DEMO 02"
 #
 # ---- CURRENT LOG4SH CONFIGS ----
 # log_format:
-# date_format:
-# date_time_zone:
-# trace_dump_resolve_abs_path:
-# threshold_min_level: 0
-# threshold_max_level: 7
+# msg_item.date.format:
+# msg_item.date.time_zone:
+# trace_dump.abs_path:
+# threshold.min_level: 0
+# threshold.max_level: 7
 # channels: stdout
 # channel.file.path:
 # channel.cmd.cmdline:

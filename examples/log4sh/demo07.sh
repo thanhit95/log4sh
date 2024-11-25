@@ -5,7 +5,7 @@
 # Please view the file demo07.config.ini
 #
 # >>>>>>>>> Before running this script, you must run listener server
-#           in file demo07.listener.sh (in another terminal).
+#           in file demo07_listener_server.sh (in another terminal).
 
 
 CUR_FILE_PATH=
