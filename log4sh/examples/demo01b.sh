@@ -3,7 +3,7 @@
 
 # This demo shows how to use t_log4sh.sh in a simplest way.
 # Make sure that your current working directory is the the directory containing this script file,
-# then you execute the demo script by using command "./demo01.sh"
+# then you execute the demo script by using command "./demo01b.sh"
 #
 # We use API: t_log and t_log_st
 
