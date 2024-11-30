@@ -22,9 +22,9 @@
 #
 # DESCRIPTION
 #   This library provides the logging functions with common features:
-#   - Log level control
+#   - Log level control (min/max threshold)
 #   - Log message formatting
-#   - Multiple output channels
+#   - Multiple output channels (stdout, stderr, file, cmd, syslog)
 #   - Stack trace dump
 #   - Configuration file
 #
@@ -54,11 +54,11 @@
 #           t_logwarn "Hello, warn!"
 #           t_logerr "Hello, error!"
 #           t_logwarn_st "Something happened unexpectedly"
-#           t_logerr_st "Got error status in execution" >&2
-#           t_logerr_st "Argument is invalid" >err.log
+#           t_logerr_st "Illegal argument value"
 #
 #           t_log DEBUG "Hello, debug"
 #           t_log ERROR "Hello, error"
+#           t_log WARN "Something happened unexpectedly"
 #           t_log_st WARN "Something happened unexpectedly"
 #
 #
@@ -69,8 +69,9 @@
 #
 #
 # NOTES
-#   - By default, the output is sent to stdout. If you want to send the logs
-#     to a file, you may apply the configuration file.
+#   - By default, the output is sent to one channel (stdout). If you want to send
+#     the logs to other channels (such as stderr, file, cmd, syslog),
+#     you can configure by the configuration file or calling API.
 #
 #
 #
@@ -187,12 +188,12 @@ _T_LOG4SH_CFG_CHN_SYSLOG_SERVER_PORT=
 
 function _t_log4sh_level_str_to_int() {
     local lv_str="$1"
-    local lv_failover="$2"
+    local lv_failover_int="$2"
     local i
     for (( i=0; i<$_T_LOG4SH_LV_STR_ARR_SIZE; ++i )); do
         [[ "${_T_LOG4SH_LV_STR_ARR[@]:$i:1}" == "$lv_str" ]] && echo "$i" && return
     done
-    echo "$lv_failover"
+    echo "$lv_failover_int"
 }
 
 
@@ -704,6 +705,10 @@ function t_logdbg() {
     local msg="$1"
     _t_log4sh_log_base false 1 "$_T_LOG4SH_DEBUG_LV" "$msg"
 }
+function t_logdebug() {
+    local msg="$1"
+    _t_log4sh_log_base false 1 "$_T_LOG4SH_DEBUG_LV" "$msg"
+}
 function t_loginfo() {
     local msg="$1"
     _t_log4sh_log_base false 1 "$_T_LOG4SH_INFO_LV" "$msg"
@@ -713,6 +718,10 @@ function t_logwarn() {
     _t_log4sh_log_base false 1 "$_T_LOG4SH_WARN_LV" "$msg"
 }
 function t_logerr() {
+    local msg="$1"
+    _t_log4sh_log_base false 1 "$_T_LOG4SH_ERROR_LV" "$msg"
+}
+function t_logerror() {
     local msg="$1"
     _t_log4sh_log_base false 1 "$_T_LOG4SH_ERROR_LV" "$msg"
 }
@@ -730,6 +739,10 @@ function t_logdbg_st() {
     local msg="$1"
     _t_log4sh_log_base true 1 "$_T_LOG4SH_DEBUG_LV" "$msg"
 }
+function t_logdebug_st() {
+    local msg="$1"
+    _t_log4sh_log_base true 1 "$_T_LOG4SH_DEBUG_LV" "$msg"
+}
 function t_loginfo_st() {
     local msg="$1"
     _t_log4sh_log_base true 1 "$_T_LOG4SH_INFO_LV" "$msg"
@@ -739,6 +752,10 @@ function t_logwarn_st() {
     _t_log4sh_log_base true 1 "$_T_LOG4SH_WARN_LV" "$msg"
 }
 function t_logerr_st() {
+    local msg="$1"
+    _t_log4sh_log_base true 1 "$_T_LOG4SH_ERROR_LV" "$msg"
+}
+function t_logerror_st() {
     local msg="$1"
     _t_log4sh_log_base true 1 "$_T_LOG4SH_ERROR_LV" "$msg"
 }
