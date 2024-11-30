@@ -136,7 +136,9 @@ _T_LOG4SH_SPACE_ARR=(
 )
 _T_LOG4SH_SPACE_ARR_SIZE="${#_T_LOG4SH_SPACE_ARR[@]}"
 
-_T_LOG4SH_LV_STR_ARR=("LOG4SH" "TRACE" "DEBUG" "INFO " "WARN " "ERROR" "FATAL")
+_T_LOG4SH_LV_STR_ARR=("LOG4SH" "TRACE" "DEBUG" "INFO" "WARN" "ERROR" "FATAL")
+_T_LOG4SH_LV_STR_DISP_ARR=("LOG4SH" "TRACE" "DEBUG" "INFO " "WARN " "ERROR" "FATAL")
+_T_LOG4SH_LV_STR_ARR_SIZE="${#_T_LOG4SH_LV_STR_ARR[@]}"
 _T_LOG4SH_INTERNAL_LV=0
 _T_LOG4SH_TRACE_LV=1
 _T_LOG4SH_DEBUG_LV=2
@@ -181,6 +183,17 @@ _T_LOG4SH_CFG_CHN_SYSLOG_SERVER_PORT=
 ################################################################################
 # INTERNAL API (may expose later)
 ################################################################################
+
+
+function _t_log4sh_level_str_to_int() {
+    local lv_str="$1"
+    local lv_failover="$2"
+    local i
+    for (( i=0; i<$_T_LOG4SH_LV_STR_ARR_SIZE; ++i )); do
+        [[ "${_T_LOG4SH_LV_STR_ARR[@]:$i:1}" == "$lv_str" ]] && echo "$i" && return
+    done
+    echo "$lv_failover"
+}
 
 
 # Prints the call stack of the current function invocation.
@@ -344,7 +357,7 @@ function _t_log4sh_log_base() {
     if [[ $level -ne _T_LOG4SH_INTERNAL_LV ]]; then
         [[ $level -lt _T_LOG4SH_CFG_THRESHOLD_MIN_LV || $level -gt _T_LOG4SH_CFG_THRESHOLD_MAX_LV ]] && return
     fi
-    local level_str="${_T_LOG4SH_LV_STR_ARR[@]:$level:1}"
+    local level_str="${_T_LOG4SH_LV_STR_DISP_ARR[@]:$level:1}"
 
     if [[ -n "$BASH_VERSION" ]]; then
         file_name="${BASH_SOURCE[$trace_skip_cnt+1]##*/}"
@@ -473,14 +486,18 @@ function t_log4sh_print_configs() {
 #   msg_item.date.format: Date format used in log message
 #   msg_item.date.time_zone: Time zone used in date
 #   trace_dump.abs_path: Whether to convert relative path to absolute path
-#   threshold.min_level: Minimum log level (integer)
-#   threshold.max_level: Maximum log level (integer)
-#                        Note: Log levels: 1=TRACE, 2=DEBUG, 3=INFO,
-#                                          4=WARN, 5=ERROR, 6=FATAL
+#   threshold.min_level: Minimum log level (string or integer)
+#   threshold.max_level: Maximum log level (string or integer)
+#                        Note: Log levels: TRACE=1, DEBUG=2, INFO=3,
+#                                          WARN=4, ERROR=5, FATAL=6
 #   channels: Comma-separated list of channels
-#             Available channels: stdout, stderr, file, cmd
+#             Available channels: stdout, stderr, file, cmd, syslog
 #   channel.file.path: File path for 'file' channel
 #   channel.cmd.cmdline: Command line for 'cmd' channel
+#   channel.syslog.facility: Syslog facility for 'syslog' channel
+#   channel.syslog.tag: Syslog tag for 'syslog' channel
+#   channel.syslog.server_host: Syslog server host for 'syslog' channel
+#   channel.syslog.server_port: Syslog server port for 'syslog' channel
 #
 function t_log4sh_set_config() {
     local key="$1"
@@ -489,7 +506,7 @@ function t_log4sh_set_config() {
     # line syntax: <key>=<value>
     local line="$3"
 
-    local arr arr2
+    local tmp arr arr2
 
     if [[ -z "$key" && -z "$val" ]]; then
         [[ -z "$line" ]] && return
@@ -511,10 +528,18 @@ function t_log4sh_set_config() {
             _T_LOG4SH_CFG_TRACE_DUMP_ABS_PATH="$val"
             ;;
         "threshold.min_level")
-            _T_LOG4SH_CFG_THRESHOLD_MIN_LV="$val"
+            tmp="$val"
+            if [[ ! "$tmp" =~ ^[0-9]+$ ]]; then
+                tmp="$(_t_log4sh_level_str_to_int "$tmp" "$_T_LOG4SH_CFG_THRESHOLD_MIN_LV")"
+            fi
+            _T_LOG4SH_CFG_THRESHOLD_MIN_LV="$tmp"
             ;;
         "threshold.max_level")
-            _T_LOG4SH_CFG_THRESHOLD_MAX_LV="$val"
+            tmp="$val"
+            if [[ ! "$tmp" =~ ^[0-9]+$ ]]; then
+                tmp="$(_t_log4sh_level_str_to_int "$tmp" "$_T_LOG4SH_CFG_THRESHOLD_MAX_LV")"
+            fi
+            _T_LOG4SH_CFG_THRESHOLD_MAX_LV="$tmp"
             ;;
 
         "channels")
