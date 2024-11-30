@@ -11,23 +11,25 @@ This repository contains my random Linux shell stuff, including:
 
 ### t_log4sh.sh
 
-Logging library which supports stack trace dump and configurations.
+Logging library which supports common features: log level control, log message formatting, multiple output channels (stdout, stderr, file, cmd, syslog) and more...
 
 Output example:
 
 ```shell
-# Calling the API fuctions:
+# Using the API fuctions:
 #   t_logdbg "msg with debug level"
 #   t_loginfo "msg with info level"
-#   t_logwarn_st "illegal argument value"
+#   t_log INFO "msg with info level (alias API)"
+#   t_log_st WARN "illegal argument value"
 #
 # Output:
-2024-11-22 20:07:18.489 [DEBUG] demo01a.sh:18: check_data: msg with debug level
-2024-11-22 20:07:18.490 [INFO ] demo01a.sh:19: check_data: msg with info level
-2024-11-22 20:07:18.492 [WARN ] demo01a.sh:20: check_data: illegal argument value
-    at check_data (./examples/log4sh/demo01a.sh:20)
-    at send_request (./examples/log4sh/demo01a.sh:28)
-    at main (./examples/log4sh/demo01a.sh:33)
+2024-11-30 16:25:14.862 [DEBUG] demo.sh:16: check_data: msg with debug level
+2024-11-30 16:25:14.864 [INFO ] demo.sh:17: check_data: msg with info level
+2024-11-30 16:25:14.866 [INFO ] demo.sh:18: check_data: msg with info level (alias API)
+2024-11-30 16:25:14.868 [WARN ] demo.sh:19: check_data: illegal argument value
+    at check_data (./demo.sh:19)
+    at send_request (./demo.sh:24)
+    at main (./demo.sh:29)
 ```
 
 ### t_util_lib.sh

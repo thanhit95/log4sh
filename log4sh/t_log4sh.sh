@@ -7,10 +7,10 @@
 #   t_log4sh.sh
 #
 # VERSION
-#   1.0
+#   1.1
 #
 # RELEASE DATE
-#   2024-11-22
+#   2024-11-30
 #
 # AUTHOR
 #   Thanh Nguyen (thanh.it1995@gmail.com)
