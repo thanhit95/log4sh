@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-# This demo instructs how to log to syslog.
+# This demo demonstrates how to log to syslog channel.
 
 
 CUR_FILE_PATH=
@@ -15,41 +15,23 @@ fi
 CUR_BASE_DIR="${CUR_FILE_PATH%/*}"
 
 
-. "$CUR_BASE_DIR/../../t_log4sh.sh"
+# . "$CUR_BASE_DIR/../../t_log4sh.sh"
+. "$CUR_BASE_DIR/demo_sub.sh"
 
 
-function check_data() {
-    local a=(9 8 7)
-    # t_logtrace "msg with trace level"
-    # t_logdbg "msg with debug level"
-    t_loginfo "msg with info level"
-    t_logwarn "msg with warn level, plus array: ${a[*]}"
-    t_logerr "msg with err level"
-    # t_logfatal "msg with fatal level, plus special chars: [] %d %l %F %f %L %m"
-    t_logwarn_st "illegal string format [] %d %l"
+function do_sth() {
+    # do_foo is from file demo_sub.sh
+    do_foo
 }
 
 
-function send_request() {
-    check_data
-}
+echo -e "BEGIN DEMO 08\n"
 
-
-echo "BEGIN DEMO 08"
-
-# We will log to both stderr and a file
-t_log4sh_set_config "channels" "stdout,syslog"
-#t_log4sh_set_config "channel.syslog.facility" "local2"
-#t_log4sh_set_config "channel.syslog.tag" "myapp"
-
-# echo -e "\n---- CURRENT LOG4SH CONFIGS ----"
-# t_log4sh_print_configs
-
-echo -e "\n---- BEGIN TESTING ----"
-send_request
+t_log4sh_init_from_cfg_file "$CUR_BASE_DIR/demo08.config.ini"
+do_sth
 
 echo -e "\nDONE DEMO 08"
 
 
-# Expected output in stderr:
+# Expected output:
 #

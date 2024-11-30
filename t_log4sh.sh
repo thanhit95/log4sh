@@ -174,6 +174,8 @@ _T_LOG4SH_CFG_CHN_SYSLOG_ENABLED=false
 _T_LOG4SH_CFG_CHN_SYSLOG_FACILITY="local0"
 _T_LOG4SH_CFG_CHN_SYSLOG_TAG="$(basename "$0")"
 _T_LOG4SH_CFG_CHN_SYSLOG_PID="$$"
+_T_LOG4SH_CFG_CHN_SYSLOG_SERVER_HOST=
+_T_LOG4SH_CFG_CHN_SYSLOG_SERVER_PORT=
 
 
 ################################################################################
@@ -306,6 +308,17 @@ function _t_log4sh_print_by_format() {
 }
 
 
+function _t_log4sh_do_syslog() {
+    local prio="$1"
+    local msg="$2"
+    local args=
+    [[ ! -z "$_T_LOG4SH_CFG_CHN_SYSLOG_SERVER_HOST" ]] && args+="--server $_T_LOG4SH_CFG_CHN_SYSLOG_SERVER_HOST"
+    [[ ! -z "$_T_LOG4SH_CFG_CHN_SYSLOG_SERVER_PORT" ]] && args+=" --port $_T_LOG4SH_CFG_CHN_SYSLOG_SERVER_PORT"
+    [[ ! -z "$_T_LOG4SH_CFG_CHN_SYSLOG_TAG" ]] && args+=" -t $_T_LOG4SH_CFG_CHN_SYSLOG_TAG"
+    logger $args --id "$_T_LOG4SH_CFG_CHN_SYSLOG_PID" -p "$prio" "$msg"
+}
+
+
 # Prints a log message with the current time, file name, line number, function
 # name, and the given message.
 #
@@ -393,9 +406,7 @@ function _t_log4sh_log_base() {
                 echo "$log_msg" | eval ${_T_LOG4SH_CFG_CHN_CMD_CMDLINE}
                 ;;
             "$_T_LOG4SH_SYSLOG_CHN")
-                logger -t "$_T_LOG4SH_CFG_CHN_SYSLOG_TAG" -p "$syslog_prio" \
-                        --id "$_T_LOG4SH_CFG_CHN_SYSLOG_PID" "$syslog_msg"
-                # echo "calling logger -t $_T_LOG4SH_CFG_CHN_SYSLOG_TAG -p $syslog_prio --id $_T_LOG4SH_CFG_CHN_SYSLOG_PID $syslog_msg"
+                _t_log4sh_do_syslog "$syslog_prio" "$syslog_msg"
                 ;;
             *)
                 ;;
@@ -539,6 +550,12 @@ function t_log4sh_set_config() {
             ;;
         "channel.syslog.tag")
             _T_LOG4SH_CFG_CHN_SYSLOG_TAG="$val"
+            ;;
+        "channel.syslog.server_host")
+            _T_LOG4SH_CFG_CHN_SYSLOG_SERVER_HOST="$val"
+            ;;
+        "channel.syslog.server_port")
+            _T_LOG4SH_CFG_CHN_SYSLOG_SERVER_PORT="$val"
             ;;
         *)
             _t_log4sh_log_base true 0 "$_T_LOG4SH_INTERNAL_LV" \
