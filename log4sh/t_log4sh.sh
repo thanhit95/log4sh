@@ -45,7 +45,12 @@
 #       t_log <level> <msg>
 #       t_log_st <level> <msg>
 #
-#       The postfix "_st" indicates that the function will dump the call stack.
+#       Syntax explanation:
+#           <level>     Log level, can be UPPERCASE or lowercase
+#                       Values: trace, dbg/debug, info, warn, err/error, fatal
+#           <msg>       Log message
+#           The postfix "_st" indicates that the function will dump the call stack.
+#
 #       Please view the section "API" for details.
 #
 #       Examples:
@@ -137,9 +142,7 @@ _T_LOG4SH_SPACE_ARR=(
 )
 _T_LOG4SH_SPACE_ARR_SIZE="${#_T_LOG4SH_SPACE_ARR[@]}"
 
-_T_LOG4SH_LV_STR_ARR=("LOG4SH" "TRACE" "DEBUG" "INFO" "WARN" "ERROR" "FATAL")
 _T_LOG4SH_LV_STR_DISP_ARR=("LOG4SH" "TRACE" "DEBUG" "INFO " "WARN " "ERROR" "FATAL")
-_T_LOG4SH_LV_STR_ARR_SIZE="${#_T_LOG4SH_LV_STR_ARR[@]}"
 _T_LOG4SH_INTERNAL_LV=0
 _T_LOG4SH_TRACE_LV=1
 _T_LOG4SH_DEBUG_LV=2
@@ -189,11 +192,31 @@ _T_LOG4SH_CFG_CHN_SYSLOG_SERVER_PORT=
 function _t_log4sh_level_str_to_int() {
     local lv_str="$1"
     local lv_failover_int="$2"
-    local i
-    for (( i=0; i<$_T_LOG4SH_LV_STR_ARR_SIZE; ++i )); do
-        [[ "${_T_LOG4SH_LV_STR_ARR[@]:$i:1}" == "$lv_str" ]] && echo "$i" && return
-    done
-    echo "$lv_failover_int"
+
+    case "$lv_str" in
+        "log4sh" | "LOG4SH")
+            echo "$_T_LOG4SH_INTERNAL_LV" ;;
+        "trace" | "TRACE")
+            echo "$_T_LOG4SH_TRACE_LV" ;;
+        "dbg" | "debug" | "DBG" | "DEBUG")
+            echo "$_T_LOG4SH_DEBUG_LV" ;;
+        "info" | "INFO")
+            echo "$_T_LOG4SH_INFO_LV" ;;
+        "warn" | "WARN")
+            echo "$_T_LOG4SH_WARN_LV" ;;
+        "err" | "error" | "ERR" | "ERROR")
+            echo "$_T_LOG4SH_ERROR_LV" ;;
+        "fatal" | "FATAL")
+            echo "$_T_LOG4SH_FATAL_LV" ;;
+        *)
+            echo "$lv_failover_int" ;;
+    esac
+
+    # local i
+    # for (( i=0; i<$_T_LOG4SH_LV_STR_ARR_SIZE; ++i )); do
+    #     [[ "${_T_LOG4SH_LV_STR_ARR[@]:$i:1}" == "$lv_str" ]] && echo "$i" && return
+    # done
+    # echo "$lv_failover_int"
 }
 
 
@@ -650,19 +673,19 @@ function t_log() {
     local msg="$2"
 
     case "$level_str" in
-        "LOG4SH")
+        "log4sh" | "LOG4SH")
             _t_log4sh_log_base false 1 "$_T_LOG4SH_INTERNAL_LV" "$msg" ;;
-        "TRACE")
+        "trace" | "TRACE")
             _t_log4sh_log_base false 1 "$_T_LOG4SH_TRACE_LV" "$msg" ;;
-        "DBG" | "DEBUG")
+        "dbg" | "debug" | "DBG" | "DEBUG")
             _t_log4sh_log_base false 1 "$_T_LOG4SH_DEBUG_LV" "$msg" ;;
-        "INFO")
+        "info" | "INFO")
             _t_log4sh_log_base false 1 "$_T_LOG4SH_INFO_LV" "$msg" ;;
-        "WARN")
+        "warn" | "WARN")
             _t_log4sh_log_base false 1 "$_T_LOG4SH_WARN_LV" "$msg" ;;
-        "ERR" | "ERROR")
+        "err" | "error" | "ERR" | "ERROR")
             _t_log4sh_log_base false 1 "$_T_LOG4SH_ERROR_LV" "$msg" ;;
-        "FATAL")
+        "fatal" | "FATAL")
             _t_log4sh_log_base false 1 "$_T_LOG4SH_FATAL_LV" "$msg" ;;
         *)
             _t_log4sh_log_base true 0 "$_T_LOG4SH_INTERNAL_LV" \
@@ -676,19 +699,19 @@ function t_log_st() {
     local msg="$2"
 
     case "$level_str" in
-        "LOG4SH")
+        "log4sh" | "LOG4SH")
             _t_log4sh_log_base true 1 "$_T_LOG4SH_INTERNAL_LV" "$msg" ;;
-        "TRACE")
+        "trace" | "TRACE")
             _t_log4sh_log_base true 1 "$_T_LOG4SH_TRACE_LV" "$msg" ;;
-        "DBG" | "DEBUG")
+        "dbg" | "debug" | "DBG" | "DEBUG")
             _t_log4sh_log_base true 1 "$_T_LOG4SH_DEBUG_LV" "$msg" ;;
-        "INFO")
+        "info" | "INFO")
             _t_log4sh_log_base true 1 "$_T_LOG4SH_INFO_LV" "$msg" ;;
-        "WARN")
+        "warn" | "WARN")
             _t_log4sh_log_base true 1 "$_T_LOG4SH_WARN_LV" "$msg" ;;
-        "ERR" | "ERROR")
+        "err" | "error" | "ERR" | "ERROR")
             _t_log4sh_log_base true 1 "$_T_LOG4SH_ERROR_LV" "$msg" ;;
-        "FATAL")
+        "fatal" | "FATAL")
             _t_log4sh_log_base true 1 "$_T_LOG4SH_FATAL_LV" "$msg" ;;
         *)
             _t_log4sh_log_base true 0 "$_T_LOG4SH_INTERNAL_LV" \
