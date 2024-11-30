@@ -13,7 +13,7 @@ fi
 DEMO_SUB_BASE_DIR="${DEMO_SUB_FILE_PATH%/*}"
 
 
-. "$DEMO_SUB_BASE_DIR/../../t_log4sh.sh"
+. "$DEMO_SUB_BASE_DIR/../t_log4sh.sh"
 
 
 function do_bar() {

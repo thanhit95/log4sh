@@ -64,8 +64,8 @@
 #
 #
 # EXAMPLES
-#   See the complete example scripts in "examples/log4sh/"
-#
+#   See the complete example scripts in "examples" directory
+#   I also includes a template for the configuration file "template.config.ini"
 #
 #
 # NOTES
@@ -437,12 +437,15 @@ function t_log4sh_print_configs() {
     echo "msg_item.format: $_T_LOG4SH_CFG_MSGITM_FORMAT"
     echo "msg_item.date.format: $_T_LOG4SH_CFG_MSGITM_DATE_FORMAT"
     echo "msg_item.date.time_zone: $_T_LOG4SH_CFG_MSGITM_DATE_TIME_ZONE"
-    echo "trace_dump.abs_path: $_T_LOG4SH_CFG_TRACE_DUMP_ABS_PATH"
+    echo "channels: ${_T_LOG4SH_CFG_CHANNELS[@]}"
     echo "threshold.min_level: $_T_LOG4SH_CFG_THRESHOLD_MIN_LV"
     echo "threshold.max_level: $_T_LOG4SH_CFG_THRESHOLD_MAX_LV"
-    echo "channels: ${_T_LOG4SH_CFG_CHANNELS[@]}"
+    echo "trace_dump.abs_path: $_T_LOG4SH_CFG_TRACE_DUMP_ABS_PATH"
     echo "channel.file.path: $_T_LOG4SH_CFG_CHN_FILE_PATH"
-    echo "channel.cmd.cmdline: $_T_LOG4SH_CFG_CHN_CMD_CMDLINE"
+    echo "channel.syslog.facility: $_T_LOG4SH_CFG_CHN_SYSLOG_FACILITY"
+    echo "channel.syslog.tag: $_T_LOG4SH_CFG_CHN_SYSLOG_TAG"
+    echo "channel.syslog.server_host: $_T_LOG4SH_CFG_CHN_SYSLOG_SERVER_HOST"
+    echo "channel.syslog.server_port: $_T_LOG4SH_CFG_CHN_SYSLOG_SERVER_PORT"
 }
 
 
@@ -604,9 +607,10 @@ function t_log4sh_init_from_cfg_file() {
     fi
 
     while IFS= read -r line || [[ -n "$line" ]]; do
-        if [[ "$line" == "#"* ]]; then
+        if [[ -z "$line" || "$line" == "#"* || "$line" == ";"* ]]; then
             continue
         fi
+        # echo "line is $line"
         t_log4sh_set_config "" "" "$line"
     done < "$cfg_file_path"
 
