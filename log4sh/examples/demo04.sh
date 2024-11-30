@@ -53,7 +53,6 @@ echo -e "\nDONE DEMO 04"
 
 # Expected output in both stderr and file demo04.log:
 #
-# ---- BEGIN TESTING ----
 # 2024-11-30 15:26:23.413 [INFO ] demo04.sh:27: check_data: msg with info level
 # 2024-11-30 15:26:23.418 [WARN ] demo04.sh:28: check_data: msg with warn level, plus array: 9 8 7
 # 2024-11-30 15:26:23.421 [ERROR] demo04.sh:29: check_data: msg with err level
