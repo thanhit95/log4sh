@@ -2,7 +2,7 @@
 
 
 # This demo shows how to use t_log4sh.sh in a simplest way.
-# Make sure that your current working directory is the the directory containing this script file,
+# Make sure that your current working directory is "examples" (containing this script file),
 # then you execute the demo script by using command "./demo01a.sh"
 #
 # We use API: t_logtrace,    t_logdbg,    t_loginfo, t_logwarn, t_logerr, t_logfatal
