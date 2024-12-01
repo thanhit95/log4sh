@@ -21,7 +21,7 @@
 #
 #
 # DESCRIPTION
-#   This library provides the logging functions with common features:
+#   This library provides the logging functions with various features:
 #   - Log level control (min/max threshold)
 #   - Log message formatting
 #   - Multiple output channels (stdout, stderr, file, cmd, syslog)

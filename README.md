@@ -31,11 +31,16 @@ Output example:
 ```
 
 
-## Getting started
+## Tutorials
 
-(I will update this section later)
+You may checkout `examples` directory. It provides complete, step-by-step demonstrations.
 
-You may checkout directory `examples`. It give complete demostrations step by step.
+
+## History
+
+This repository was originally named `linux_shell_kit`. At that time, it had some features such as `log4sh`, `proc_stat`, and others. I decided to change the development direction, so now it focuses solely on `log4sh` (and, of course, I've renamed this repository to `log4sh`).
+
+Other features, like `proc_stat`, will be moved to a new repository with original name: [https://github.com/thanhit95/linux_shell_kit](https://github.com/thanhit95/linux_shell_kit)
 
 
 ## Author & license
