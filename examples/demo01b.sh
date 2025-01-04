@@ -13,11 +13,11 @@
 
 
 function check_data() {
-    t_logdbg "msg with debug level"
-    t_loginfo "msg with info level"
-    t_logwarn "msg with warn level"
-    t_logerr "msg with err level"
-    t_logwarn_st "a fatal error occurred, including a detailed stack trace"
+    t_log DEBUG "msg with debug level"
+    t_log INFO "msg with info level"
+    t_log WARN "msg with warn level"
+    t_log ERROR "msg with err level"
+    t_log_st WARN "a fatal error occurred, including a detailed stack trace"
 }
 
 
